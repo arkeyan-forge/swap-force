@@ -17,11 +17,12 @@ texture, and the toy data names the materials.
 
 | Picture | Archive | Entries | Size, format |
 |---|---|---|---|
-| Logo | `archives/defaultloadscreen.pak` (the loading screen) | `textures\juicestandard_title_10.igz` (source `ui\Loading\Title.tga`) | 872x400, DXT5: the whole "SKYLANDERS SWAP FORCE" logo with the element row and the TM, on transparency |
+| Logo | `archives/defaultloadscreen.pak` (the loading screen) | `textures\juicestandard_title_00.igz` (source `ui\Loading\Title.tga`) | 872x400, 32 bits per texel (`250C4EF0`, lossless): the whole "SKYLANDERS SWAP FORCE" logo with the element row and the TM, on transparency. `_10` is the DXT5 copy; see "The logo" below |
 | Background | `archives/juicedomain_frontend.pak` (the menus) | `textures\juicestandard_mainmenu_background_10.igz` (`ui\PauseMenu\MainMenu_Background.tga`) | 1280x720, DXT5: the main menu's painted sky |
 | Portraits (collection icons, one per toy and per variant) | `archives/toycollectionimages.pak` | 208 material instances `materialinstances\toycollection\collection_<toy>_<normal, reposed, reposed2013, lightcore, legendary, ...>.igz`, 208 textures `textures\juicestandard_collections_<name>_10.igz` or `..._<hash>.igz` | 192x192, DXT5 (`ui\Collections\ToyInventoryIcons\<2011, 2012Characters, MagicItems...>\Collections_<Name>.tga`) |
 | UFO Hat (magic item 3204) | `archives/collectibleicons.pak` (the hats' icons) | `materialinstances\haticon_ufo_materials.igz` | 160x160, DXT5: its hat's icon (its toy data names no picture) |
 | Artworks (the face-off portraits, one per Skylander and per variant) | `archives/faceoffportraitsimages.pak` | 179 `materialinstances\portrait_faceoff\<toy>[<deco>]_fullscreen_materials.igz` (`zook_fullscreen_materials`, `zooks2_fullscreen_materials`), textures `<Toy>[<Deco>]Portrait640` | 640x320, DXT5, the character cut out on transparency |
+| Swappers' halves (the swap screen's pictures: a top above the waist, the legs, one each per swapper and per version) | `archives/characterillustrations.pak` | `materialinstances\wiiportraits\<toy>body_`, `<toy>_` (Fire Kraken, Hoot Loop, Free Ranger, Night Shift), `<deco><toy>top_`, `<toy>legs_`, `<deco><toy>legs_` `wii_material.igz`; textures `JuiceStandard_Body_<Toy>_Combo_10` (512x512 DXT5), the decos' `_Wii_10` (1024x1024) or hash-named (256x256) | on transparency; a top fills the upper part of its canvas, the legs the lower. Also `<toy>belt_` (belts, not used) |
 
 - **Each toy's data** (`archives/toydata.pak`, `<toy>_toydata.igx`, read by `tools/toy_tables.py`) names its pictures:
   `_toyCollectionMaterial` (the portrait) and `_faceOffPortraitMaterial` (the artwork) on the toy and on each variant
@@ -29,11 +30,30 @@ texture, and the toy data names the materials.
   name in lower case.
 - **Sidekicks** (505, 514, 519, 526, 540-543) name no picture: their icons are the collection's
   `collection_pet_<terrabite, gillrunt, triggersnappy, whisperelf, liltreerex, lilthumpback, lilninjini, lileyebrawl>_normal`.
-- **Swapper halves**: only the top half (`swap_top`, part `Body_<pair>`) names pictures; a bottom half (`Legs_<pair>`)
+- **Swapper halves, pictures**: `characterillustrations.pak` holds, for each of the 16 swappers and their 9 other versions (Dark Blast Zone,
+  Legendary Free Ranger and Night Shift, Jade Fire Kraken, Enchanted Hoot Loop, Nitro Magna Charge, Quickdraw Rattle
+  Shake, Nitro Freeze Blade, Dark Wash Buckler), the top's picture and the legs' picture, cut out on transparency, drawn to be
+  stacked as the swap screen does. The names are not regular (`aviatorbody`, but `fireworks` and `fortune` for those tops,
+  `stormbirdtop` has no picture, `legendaryvampire` is a top), and **Quickdraw Rattle Shake's top is the material named
+  `altdecocowboybelt`** (`altdecocowboytop` is its belt's small picture) [V]. The catalogue's `halves` maps
+  each toy and version to its file (50 entries); the manifest extracts every `body_`, `top_`, `legs_` material and the four plain top names, and the
+  one belt-named top (51 files; `altdecocowboytop` is extracted and unused).
+- **Swapper halves, toy data**: only the top half (`swap_top`, part `Body_<pair>`) names pictures; a bottom half (`Legs_<pair>`)
   shows the same swapper, so the catalogue gives it its pair's top's pictures (variant by variant).
-- Not used: `archives/characters_fullscreen.pak` (81 materials `<toy>_bio_materials`, 1280x720: one per character, no
+- Logo: see "The logo" below. Not used: `archives/characters_fullscreen.pak` (81 materials `<toy>_bio_materials`, 1280x720: one per character, no
   variants, the name painted in, on a sky: the bio screen), `mainmenubackground.pak` (the 3D menu scene's textures),
-  the 1490944-byte 32-bit copy of the logo (`juicestandard_title_00`, format `250C4EF0`, not decoded) [?].
+  the full-screen pictures `juicedomain_frontend.pak` `image_1..4_00` (a Free Ranger, a Wash Buckler, a Trigger Happy and a Stealth Elf as
+  painted art, 800x800 to 1024x768, 32 bits) and `leveltitle_00` (1280x720: the logo over the painted sky, opaque), which the launcher does not use.
+
+### The logo [SwapForce] [V] (2026-10-27)
+Every logo on the disc is **872x400**: `defaultloadscreen.pak` `juicestandard_title_10` (DXT5) and `_00` (32 bits, lossless; the same
+picture, the same size: the DXT5 copy loses about 3.7 levels of 255 on average), `juicedomain_permanent.pak`
+`loadingsplash_10` (872x400 DXT5), and `leveltitle_00` (1280x720 with the logo about 850 px wide, on an opaque sky). SSA's
+logo is 1024x512 and Giants' 1033x541, so Swap Force's is 15 % smaller, and the launcher used to stretch every logo to the
+window, which showed. No larger piece exists (no sprite sheet, no 3D logo mesh with a texture bigger than this one), so there
+is nothing to compose from: the manifest reads the lossless `_00` (its format, `250C4EF0`, is A8R8G8B8 tiled, 8-in-32, the
+size padded to 32x32 texels: 896x416), and **Skylauncher never draws a logo above its own pixels** (`App::DrawLogo`).
+Cache version 4 makes the logo again.
 
 ### Formats [Alchemy] [SwapForce] [V]
 
@@ -71,8 +91,8 @@ Checked on this disc with Python and by `SSAArtTest` (2026-10-26/27).
   **32 blocks apart** (a 192-texel icon: 64 blocks, 0xC000 bytes for 48 rows; the 256-byte alignment of Xenos linear
   textures would give 48), 8-in-16; `DC78A2E3` (91) DXT1 tiled and `B9BCDC57` (31) DXT5 tiled, as Giants'; `A3708366`
   (45, normal maps, 16 bytes per block: likely DXN) [?], `250C4EF0` (9, 32 bits per texel, size padded to 32x32 texels:
-  likely A8R8G8B8 tiled) [?], `61393F6B` (1, a 256x16 colour lookup table, 32 bits) [?]. The last three are not
-  decoded (no picture the launcher needs uses them).
+  **A8R8G8B8 tiled, 8-in-32 [V]**, decoded since 2026-10-27: the logo, the legal and level title screens), `61393F6B` (1, a
+  256x16 colour lookup table, 32 bits) [?]. The normal maps and the lookup table are not decoded (no picture the launcher needs).
 - Pictures are **stored upside down**, as Giants': the decoder flips them.
 - **igx**: the toy data and other game data are plain XML (`<igx><object refname type>...`), not IGZ.
 
@@ -102,7 +122,8 @@ Giants uses; nothing in it is Swap Force's but the table row.
 
 The catalogue (`resources/collection/catalogue.json`, the `swapforce` game) maps toys to these files: `portraits` (233
 keys: 133 toys, 100 variants; 209 files) and `artworks` (200 keys: 101 toys, 99 variants; 175 of the 179 files),
-`"<type>"` or `"<type>:<variant id>"` as Giants' ([collection.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/host/collection.md)). Built from
+`"<type>"` or `"<type>:<variant id>"` as Giants' ([collection.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/host/collection.md)); `halves` (50 keys) are the
+swappers' stacked pictures above. Built from
 `tools/toy_tables.py`'s dump (2026-10-27): each toy's and variant's `picture` / `portrait` material in lower case, a
 variant listed only when its picture differs from its toy's; the sidekicks, bottom halves and the UFO Hat as above.
 Four face-off portraits no toy data names (`chills3`, `doubletroublelegendary`, `frightriderlegendary`,
@@ -111,12 +132,16 @@ extracted but not mapped. Every toy Swap Force accepts (its own, Giants' and SSA
 
 ## Tests
 
-- `SSAArtTest` with `SWAPFORCE_ISO=<iso>` (138 checks, 4 s the first time, 0.00 s cached): logo 872x400, background
+- `SSAArtTest` with `SWAPFORCE_ISO=<iso>` (178 checks with that disc alone, 226 with all three; 4 s the first time, 0.00 s cached; `SWAPPER_PICTURES=<folder>` also writes the
+  16 matched swappers, their 9 other versions and 5 mixed ones as PNG, to look at): the 32-bit format, logo 872x400 (its size is checked), 230 artworks (179 + 51), every half has its picture, background
   1280x720, title icon, 209 portraits, 179 artworks, every toy the catalogue maps has its picture and every mapped file
   exists, every accepted toy has a picture from this disc alone, Series 2 Zook's best picture is
   `artworks/zooks2_fullscreen_materials.png` (640x320). Without a disc, the IGZ v7 fixture checks the string-index
   name, the dependency and the linear DXT5 pitch. Looked at by eye (2026-10-27): the logo, the sky, Zook and Series 2
-  Zook, a swapper, a sidekick, the UFO Hat, a dozen icons and face-off portraits: right way up, right colours.
+  Zook, a swapper, a sidekick, the UFO Hat, a dozen icons and face-off portraits: right way up, right colours). Also by eye (2026-10-27): the 45
+  halves' pictures (contact sheets of every top and every legs), the 16 matched swappers stacked, their 9 other versions and 5 mixed
+  swappers, in Skylauncher (the shelf at two window sizes, the sheet, Add a figure) and in the Toy Box; and the logo
+  before and after at the default window size and a large one (`private/` shots, not committed).
 - `python3 -I tools/toy_tables.py <Swap Force ISO>` reads `toydata.pak` through the same IGA v10 layout.
 - Giants' extraction is unchanged by the v7 work: the same 228 PNG files, byte for byte, before and after (2026-10-27).
 

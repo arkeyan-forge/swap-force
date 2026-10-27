@@ -129,6 +129,24 @@ the motion blur while the ship flies. Since 2026-10-27 the scene is rendered at 
 The table above is the 1040x620 frame; at full resolution every size is the same fraction of 1280x720 and the game
 computes the constants from the passes.
 
+### The lava's smear and the soft backgrounds (2026-10-27) [V]
+The user's recording (tutorial, `main` at 1040x620): "the lava bugs a lot", smeared like a strong motion blur; the
+Skylander menu's clouds and the backdrops look soft. Checked on frame captures (`SKY_DUMP_VS_CONSTANTS`,
+[debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md)); nothing of ours was found:
+- **The velocity is the game's own, per vertex.** The G-buffer materials (vertex shaders `2EED9EE6`, skinned
+  `359FC863`) project each vertex with this frame's matrices and with the previous frame's (static meshes: previous
+  world-view c14-c17 and projection c18-c21; skinned: previous bones from c90, previous world-view c165-c168), scale
+  the difference by c22 / c173 = (-224, 126), clamp it to 7 and write it to two G-buffer alphas; pass 6 (`1D4DD81F`)
+  packs them, zero only where nothing was drawn. The depth range does not enter (positions only). In the captured
+  frame the previous matrices are the current ones moved by the ship's motion (the deck: 0.1 unit; the bones: under
+  1 unit), so the far canyon walls stream radially because the ship flies forward through them: the game's motion
+  blur, by design. [?] Whether the console blurs as much cannot be told without a console capture.
+- **The backgrounds are the disc's textures.** The pause and Skylander menus draw 256x512, 512x512, 256x144 and
+  512x1080 textures without mipmaps, base level, linear filter, no LOD bias, stretched over the screen; the canyon
+  walls use 256x256 and 512x512 DXT1 textures with mipmaps (no bias; at scale 2 we pick finer mips than the console),
+  then the depth of field and the motion blur soften them. A higher-resolution look needs texture packs
+  ([texture_packs.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/texture_packs.md)) or less post-processing (a product choice).
+
 ### The lava [?]
 Apart from the green (above), nothing wrong was found in the tutorial's lava: the lava sheets, the heat distortion and
 the sky draw with plausible state and textures. Without a console capture of the same moment, colour or speed

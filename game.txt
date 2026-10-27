@@ -5,7 +5,7 @@ name=Skylanders: Swap Force
 runtime=SSFRecomp
 # The game's own version (1.0 = the game at 100 %): each fix bumps the last number. The kit carries it (kit.txt game_version.<id>),
 # the release says it (games.json), Skylauncher offers UPDATE when its release has a higher one.
-version=0.4.0
+version=0.5.0
 toml=SwapForce.toml
 xex_sha256=5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3
 # Shaders: all in one IGA v10 archive of the disc (SkyBuild extracts them itself: tools/skybuild/igz_shaders.cpp).

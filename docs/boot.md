@@ -417,7 +417,18 @@ Checked [V] (tutorial and `barrens/brn1`, scale 2, macOS Metal, offscreen, 2026-
 1040x620, the HUD clean, no new stub or fault; the menus and the frame keep their own sets. Cost, in a 2560x1440 window
 (the 3D at 2560x1440 host pixels instead of 2080x1240), the tutorial: 29.7 fps, GPU wait 0.0-0.1 ms a frame, GPU thread
 5-7 % busy, against 30.0 fps, 0.0 ms and 8-10 % at the original resolution (the machine loaded by other runs; no
-GPU timer in the runtime). A 2560x1080 window: scene 1696x720, 30 fps, 46 resolves. Shots (untracked):
+GPU timer in the runtime). A 2560x1080 window: scene 1696x720, 30 fps, 46 resolves.
+
+**Save loads, a zone change, the pause menu at exactly 1280x720** [V] (2026-10-27): another port reports that a scene
+of exactly the screen's size crashes about half of Swap Force's save loads (a pooled surface record with a null
+resource in `sub_82513358`, and a heap block header overrun) and uses 1264x704 instead (`office/lessons_2026-10-27.md`,
+1.9). Ours, at 1280x720 (scale 2, `private/sfblur/saveload.sh`, untracked): a save made in the tutorial, then **9 runs
+that load it** from the title (the slot opened for reading, `tutorial_a` loaded, the save written again), each with a
+pause-menu round trip (open, the Skylander page and its stats, back), and one 230 s run through the Greeble ships to
+the next zone (`tutorial_b`, drawn right): **0 crashes, 0 faults, 46 resolves a frame throughout**. Not tested: the
+pause menu's MAIN MENU in the tutorial (A on it does nothing there [?]: the tutorial seems not to allow quitting).
+Why ours does not crash is not proven [?]: with the hooks above, every scene surface keeps the console's EDRAM plan and
+base, so the game's pooled records match the 1040x620 ones it was built for. Shots (untracked):
 `private/sfblur/shots/fullres/` (tutorial, `brn1`, the 2560x1440 crops, ultrawide, each mode).
 
 ## Still open
