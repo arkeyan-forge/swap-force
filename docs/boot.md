@@ -380,6 +380,46 @@ kit install with the icon in the Dock was not run [?].
 `prompt for player 1`, `open (0 figures, emulated portal)`; the saves are `SWAPFORCE_OPTIONS` and `SWAPFORCE_0`
 (`<saves>/00000001/<name>/<name>.xsg`), each rewrite keeping the previous one in `<saves>-backup/<time>/`.
 
+### The scene at full resolution (2026-10-27) [Alchemy] [SwapForce] [V]
+The user's decision (`office/decisions.md`): the 3D at the frame's size by default, the console's 81 % scene as a setting
+(`--original-resolution`, `[swapforce.video] original_resolution=1`, [settings.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/settings.md)).
+Code: `games/swapforce/ultrawide.cpp`, `game::Adapter::fullScene` (`games/swapforce/adapter.cpp`),
+`ultrawide::SetScene16x9` (`runtime/d3d/ultrawide.h`, called by `runtime/main.cpp` before `Configure`). Three hooks, all
+needed; without any of them the picture is wrong:
+1. **The size.** The scene's chain of render-target passes starts at a pass with an **explicit** 1040x620 (`+32`, `+36`;
+   its scales at `+40`, `+44` are 1 in the tutorial; the 0.8125 / 0.861 above were seen by the store watch, on a pass the
+   hook never sees again [?]). `sub_8258EBE8`'s hook writes the scene's size there before the original (1280x720, or the
+   wide one): the half, quarter and reductions follow (640x360, 320x180, 128x720, 128x72), and so do the game's own
+   constants (the post effects' 1/size, the FXAA's +-0.5/size are computed from the passes). Log: `[scene] full
+   resolution: scene 1040x620 -> 1280x720`.
+2. **No predicated tiling.** A 1280x720 G-buffer (3 colours + depth, 720 EDRAM tiles each) does not fit the console's
+   2048 tiles: `sub_825138F8` splits the set into 2 tiles of 864x720 (the original's tile list: count at `+40`,
+   rectangles from `+44`, the tile size in each surface's `+108`, `+112`). The runtime does not replay draws per tile, so
+   the frame was **white**. The hook writes back what the original writes for a set that fits: one tile, the whole
+   surface (`[scene] 1280x720 targets kept in one piece`).
+3. **The console's EDRAM plan.** When the scene's passes fit, the game plans their EDRAM once (`sub_82593870` per pass,
+   bytes `+125` = 1 on each surface: depth at 0, colours at 507, 1014, 1521 at 1040x620) and some passes rely on what
+   another pass left in the same tiles: the composite skips the HUD's stencil masks and leaves there what pass 8 drew
+   (the clear 0.55 and the HUD panels). Past 2048 tiles there is no plan (`+125` = 0) and every set is laid out from
+   tile 0 (`sub_82514448`: colours from 0, depth at 2048 minus its size); the shadow mask then cleared the composite's
+   target to white, and the bloom made a **white halo around the HUD** (portrait, health bar, "Press X" banner). The hook
+   on `sub_82516EB8` (a surface's EDRAM tile count) gives the plan's call (the one returning to `0x825938B0`) the count of
+   the original size for the chain's surfaces (sizes that scale exactly from the scene to 1040x620: 1280 x 13/16,
+   720 x 31/36), so the plan and every base are the console's; the host's targets are keyed by base, format and size and
+   keep their real size. Found by logging `sub_82514448`'s sets (bases and `+125`) in both modes. The count must stay
+   the original's when the targets are set too (`sub_82514448` counts each planned surface again): with the real 720,
+   the depth at 0 overlapped the colour at 507 and the game saved the depth to memory after every pass, **84 resolves a
+   frame instead of 46**, and the GPU then limited the frame rate (the harness's fps check failed at 25 fps, the GPU
+   thread 90 % busy). The hook counts a surface whose byte `+125` is set like the plan's.
+
+Checked [V] (tutorial and `barrens/brn1`, scale 2, macOS Metal, offscreen, 2026-10-27): every pass of the chain at
+1280x720 or its fraction (capture), the same EDRAM bases and the same **46 resolves and ~650 draws a frame** as at
+1040x620, the HUD clean, no new stub or fault; the menus and the frame keep their own sets. Cost, in a 2560x1440 window
+(the 3D at 2560x1440 host pixels instead of 2080x1240), the tutorial: 29.7 fps, GPU wait 0.0-0.1 ms a frame, GPU thread
+5-7 % busy, against 30.0 fps, 0.0 ms and 8-10 % at the original resolution (the machine loaded by other runs; no
+GPU timer in the runtime). A 2560x1080 window: scene 1696x720, 30 fps, 46 resolves. Shots (untracked):
+`private/sfblur/shots/fullres/` (tutorial, `brn1`, the 2560x1440 crops, ultrawide, each mode).
+
 ## Still open
 - The fan port's "black characters from an EDRAM overlap" and "a vertex buffer rewritten in place after a draw" did not
   show here: the character draws lit, in the G-buffer and in its x-ray pass [?] (one level seen).

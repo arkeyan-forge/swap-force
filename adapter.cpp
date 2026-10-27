@@ -66,8 +66,9 @@ namespace
     // the archive's bytes (the hash method of the other textures), not seen in game yet.
     constexpr glyphs::Texture GlyphTextures[] = { { 0x0758AAD79A30A2C8ull, "turbo_a 128", Glyph::A, {}, true } };
 
+    // fullScene: the scene at the frame's size (games/swapforce/ultrawide.cpp: the scene chain's size, its tiling and EDRAM plan).
     const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures, IntroMovies, false,
-        nullptr, {}, GlyphImages, true };
+        nullptr, {}, GlyphImages, true, { 1280, 720 } };
 }
 
 const game::Adapter& game::Current() { return g_adapter; }

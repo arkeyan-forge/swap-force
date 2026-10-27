@@ -71,6 +71,10 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   render targets and colour tables anisotropically: the whole 3D view smeared, the lava and Eruptor turned green. Now
   only textures with mipmaps get it. The passes that remain soft by design (a 1040x620 scene stretched to 1280x720, FXAA,
   depth of field, motion blur): [shaders.md](shaders.md#the-post-processing-passes-and-the-blur-swapforce-alchemy).
+- **The 3D at full resolution by default** (2026-10-27) [V]: the scene is 1280x720 (the window's shape when wider)
+  instead of 1040x620 stretched; `[swapforce.video] original_resolution=1` (`--original-resolution 1`) keeps the
+  console's. Three hooks: the chain's size, no predicated tiling, the console's EDRAM plan
+  ([boot.md](boot.md#the-scene-at-full-resolution-2026-10-27-alchemy-swapforce-v)).
 
 - **Text and voice language, the intro movies** (2026-10-27) [V]: the disc has English and French only (text and voices);
   `--language en|fr` works through the console language, any other falls back to English in the title; `voice_language`

@@ -59,14 +59,21 @@
 #define GAME_HOOK_Language_SoundPak sub_825F5B48
 #define GAME_HOOK_Movie_Open sub_825A71D0
 
-// Ultrawide (games/swapforce/ultrawide.cpp, docs/runtime/gpu/ultrawide.md "Swap Force"): the scene's render-target pass computes
-// its size from the display's (sub_8258EBE8: display 1280x720 times the pass's scales 0.8125 and 0.861 = 1040x620; its
-// children, half, quarter and the reductions, read their parent's); the world camera's set-up (sub_82B992A8) reads the
+// Ultrawide and the full-resolution scene (games/swapforce/ultrawide.cpp, docs/runtime/gpu/ultrawide.md "Swap Force"): a
+// render-target pass computes its size in sub_8258EBE8 (an explicit size, its parent's or the display's, times its scales);
+// the scene's chain starts at a pass with an explicit 1040x620 (81 % of 1280x720) and its children, half, quarter and the
+// reductions, read their parent's; the world camera's set-up (sub_82B992A8) reads the
 // display's aspect from its viewport object (+8: 16:9). The full-screen composite and the HUD are drawn by cameras that
 // read the same aspect and need 16:9, so only the world camera gets the window's. Giants' Ultrawide_* hooks are not in this
 // engine version (shape similarity under 0.2); these were found with a store watch (docs/porting/debugging.md).
 #define GAME_HOOK_Ultrawide_ScenePass sub_8258EBE8
 #define GAME_HOOK_Ultrawide_WorldCamera sub_82B992A8
+// The scene at full resolution (game::Adapter::fullScene): sub_825138F8 splits a set of targets into tiles when they need
+// more than the console's 2048 EDRAM tiles (10 MB; the 1280x720 G-buffer does): the hook keeps them in one piece.
+// sub_82516EB8 counts a surface's EDRAM tiles; the scene's EDRAM plan (sub_82593870, which calls it) gets the original
+// size's count, so every pass keeps the console's EDRAM base (games/swapforce/docs/boot.md, "The scene at full resolution").
+#define GAME_HOOK_Scene_Tiles sub_825138F8
+#define GAME_HOOK_Scene_SurfaceTiles sub_82516EB8
 // The final composite (the scene into the frame) is an indexed quad here (6 indices), not Giants' 4 vertices.
 #define GAME_ULTRAWIDE_COMPOSITE_INDEXED
 

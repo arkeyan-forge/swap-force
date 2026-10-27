@@ -124,9 +124,10 @@ weight is 0 (error 0.00 over the deck); the unnormalized fetches land on texel c
 guest texel, as on the console, not a blur); no half-resolution pass is stretched by mistake (no 2x2 blocks in the
 G-buffer or the scene). What softness is left is the game's own: the 3D at 1040x620 stretched x1.23 / x1.16 to the
 frame (at scale 2 on a 2560x1440 window: 2080 scene pixels over 2560), FXAA, the depth of field on the far background,
-the motion blur while the ship flies. Rendering the scene at the frame's resolution would need the game's targets
-changed (not tried) [?]; `--scale 3` puts 3120 scene pixels on a 2560 window (it held 30 fps in the tutorial, GPU thread
-~20 % busy under a heavy load) but was not made the default.
+the motion blur while the ship flies. Since 2026-10-27 the scene is rendered at the frame's size by default (no stretch; the console's
+1040x620 with `original_resolution=1`: [boot.md](boot.md#the-scene-at-full-resolution-2026-10-27-alchemy-swapforce-v)).
+The table above is the 1040x620 frame; at full resolution every size is the same fraction of 1280x720 and the game
+computes the constants from the passes.
 
 ### The lava [?]
 Apart from the green (above), nothing wrong was found in the tutorial's lava: the lava sheets, the heat distortion and
