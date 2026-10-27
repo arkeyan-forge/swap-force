@@ -69,7 +69,7 @@ libraries of XDK 21250; **[Xbox]** every game. Addresses are Swap Force's. Day 1
   -C build-swapforce SSARecomp` links.
 
 ### First boot runs (2026-10-26) [Xbox] [SwapForce] [V]
-Run: an isolated, bounded run (`SSA_SKIP_MOVIES=1`, every test isolation variable, killed by PID after 60 s).
+Run: an isolated, bounded run (`SKY_SKIP_MOVIES=1`, every test isolation variable, killed by PID after 60 s).
 1. **Fault at guest address 0x4C in the CRT's heap creation** (`sub_82F45998`, called from `_xstart`): the recompiled code
    called the **import thunks as ordinary functions**. `tools/find_switch_tables.py` listed all 267 thunks
    (`0x8307CDEC`-`0x8307DE8C`, 16 bytes each) in `functions`, because Swap Force reaches them through data, so they looked
@@ -139,21 +139,21 @@ Run: an isolated, bounded run (`SSA_SKIP_MOVIES=1`, every test isolation variabl
 
 ### Boot with the D3D hooks (2026-10-26) [SwapForce] [V]
 Runs: `private/swapforce/run.sh <name> <seconds> ...` (the test isolation of docs/getting-started/testing.md; no shader cache, so every draw is skipped
-and counted as "skipped (shader)" by `SSA_RENDER_STATS=1`).
+and counted as "skipped (shader)" by `SKY_RENDER_STATS=1`).
 1. **The fence spin is gone**: with KickOff/BlockOnFence/InsertCallback hooked the main thread runs; 30 fps from the
    first frame (`[video] present interval 0x2 seen (fps limit 30)`: Swap Force asks for interval 2, unlike Giants).
 2. **Start-up, without movies skipped** (`d3d1`, 60 s): the `Language Screen` and `LegalScreen` threads, the archives
    (`shaders_xenon.pak`, `permanent_xenon.pak`, `essentialui.pak`, `legal.pak`, `gamestartup.pak`...), then the two
    logo movies: `[bink] open gsbp_atvi 1280x720, 311 frames` (a Bink 1 `.bik`: the `.bk2` is missing on the disc and
    the game falls back) and `[bink] open gsbp_vvisions 1040x620, 270 frames` (Bink 2). Not drawn (no shaders yet).
-3. **Title, menu, a save, the opening movie and the first level** (`d3d3`, 170 s, `SSA_SKIP_MOVIES=1`,
-   `SSA_PORTAL=emulated`, an SSA figure (Eruptor) on the portal, A presses from 40 s): the front end draws 353-355
+3. **Title, menu, a save, the opening movie and the first level** (`d3d3`, 170 s, `SKY_SKIP_MOVIES=1`,
+   `SKY_PORTAL=emulated`, an SSA figure (Eruptor) on the portal, A presses from 40 s): the front end draws 353-355
    draws and 46 resolves a frame; the presses give the storage device, `create save: "SWAPFORCE_OPTIONS"`, then a new
    game `create save: "SWAPFORCE_0"`, `[bink] open fmv01 1024x620, 7897 frames (skipped)`, the tutorial level
    (`tutorial_a.pak`, `tutorial_a_characters.pak`, `ta_volcanointro.pak`...: 337-408 draws a frame), then **the game
    reads the figure and loads it** (`eruptor.pak`, `champ_l11_eruptor_bank*.pak`) and plays on at 30 fps (385-604
    draws a frame). No crash, no `[guard]`, no unrecompiled call in any run.
-4. **Sound** (`d3d4`, 75 s, `SSA_AUDIO_DUMP`): -23 to -31 dBFS per second from the 3rd second on (SSA's average is
+4. **Sound** (`d3d4`, 75 s, `SKY_AUDIO_DUMP`): -23 to -31 dBFS per second from the 3rd second on (SSA's average is
    -24.5): the XMA hooks work.
 - **The XAM ordinals asked through `XexGetProcedureAddress`** (`0xAFF`, `0xB00`, `0xB0B`, `0xB10`, `0x305`, `0x30B`,
   and later `0x24`): **not needed**, left unprovided. The six are fetched together by a static initializer
@@ -165,7 +165,7 @@ and counted as "skipped (shader)" by `SSA_RENDER_STATS=1`).
 ## What broke on the way to a level
 
 ### The tutorial's level frame: the pass list (2026-10-27) [SwapForce] [Alchemy] [V]
-Captured in the tutorial (`tutorial_a`, Eruptor on the ship's deck) with `SSA_D3D_CAPTURE=f2300 SSA_DUMP_FRAME=f2300`
+Captured in the tutorial (`tutorial_a`, Eruptor on the ship's deck) with `SKY_D3D_CAPTURE=f2300 SKY_DUMP_FRAME=f2300`
 (both aids on the same frame, [debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md#frame-capture)); runs `cap3` and `cap7`
 under `private/swapforce/runs/`. About 390-630 draws and 46 resolves a frame. Every surface is a tile range of EDRAM:
 `tileNNN` = base tile, colour formats 0 `k_8_8_8_8`, 7 `k_16_16_16_16_FLOAT`, 14 `k_32_FLOAT`; depth `D24FS8` (format 1).
@@ -221,7 +221,7 @@ skips it and the HUD covers it.
 - After the three: the tutorial looks like the game: the ship's deck with its crates, Eruptor lit and glowing with his
   shadow, the lava canyon, the bloom, the HUD (`private/swapforce/runs/cap7_snaps.png`, `cap7_s5.png`; the shader cache
   rebuilt from the same 556 dumps).
-- Also new for this: `SSA_D3D_CAPTURE=f<N>` and `SSA_DUMP_FRAME=f<N>` (the same frame by swap count), the dump's file
+- Also new for this: `SKY_D3D_CAPTURE=f<N>` and `SKY_DUMP_FRAME=f<N>` (the same frame by swap count), the dump's file
   number on each `[dump] resolve` line and raw statistics of float targets
   ([debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md#frame-capture)).
 
@@ -271,7 +271,7 @@ say which it allows). Read from the disc's file list and the paks:
 Giants') and returns it in r3 (a byte at `0x83403DB4` forces the value at `0x83125BE0` instead: unused here). Its readers are
 the sound package opener, the localization data, the license text, the `SwapForce.LanguageAbbreviation` script variable.
 The abbreviation (`en`, `fr`, `de`... from the table at `0x83125BE8`, 12 bytes an entry) builds the file name.
-- **Text**: the console language does it, no hook: `--language fr` (`SSA_LANGUAGE`) gives French menus, difficulty names,
+- **Text**: the console language does it, no hook: `--language fr` (`SKY_LANGUAGE`) gives French menus, difficulty names,
   prompts and the "PASSER" of the opening movie (GPU snapshot of the difficulty screen: "DIFFICULTÉ: FACILE, MOYENNE,
   DIFFICILE, CAUCHEMAR", "Sélectionner / Retour"). **Every other language falls back to English, text and voices**
   (`--language de`: the title shows "PRESS START", the voices are `*_en.pak`): the host accepts the code, the title does not
@@ -290,12 +290,12 @@ The abbreviation (`en`, `fr`, `de`... from the table at `0x83125BE8`, 12 bytes a
 **The hooks** (`games/swapforce/language.cpp`, `addresses.h`): `Language_SoundPak` raises a flag while the original runs and
 `Language_Get` answers with the **voice language's** value while it is up (the text and everything else keep the console's);
 `Movie_Open` puts the voice language's track id (5 or 6) in the description when it holds the text's. Setting
-`voice_language` (`--voice-language`, `SSA_VOICE_LANGUAGE`; unset = the text's language, as the game does) takes `en` or `fr`;
+`voice_language` (`--voice-language`, `SKY_VOICE_LANGUAGE`; unset = the text's language, as the game does) takes `en` or `fr`;
 any other code is refused ("unknown voice language ... using English"). Logs: `[language] sound packages: voices fr (8),
 text 6` and `[language] movie voice track 6 (fr), the text's was 5`.
 
 **Proof** (2026-10-27, four isolated runs of 125 s from the logos to the opening movie `fmv01` and the tutorial, an A every 2 s,
-`SSA_TRACE_FILES=1`, `SSA_AUDIO_DUMP`; `private/sfparity/voices.sh`):
+`SKY_TRACE_FILES=1`, `SKY_AUDIO_DUMP`; `private/sfparity/voices.sh`):
 | Run (text / voices) | Sound packages read | Movie track | Voice banks |
 |---|---|---|---|
 | en / en (no setting) | `*_en.pak` (16 opens) | 5 | `streamed_vo_en`, `loaded_vo_common_bank_v_en`, `streamed_vo_tutorial_a_en`, `ta_*_genbank_en` |
@@ -307,7 +307,7 @@ The audio dumps corroborate it for the movie: the loudness envelope (25 ms) of t
 language and 0.27-0.33 between the pairs that differ, whatever the text. [?] Nobody listened to the French lines, and the
 `champ_*_lv_*` figure voice banks were not reached in these runs.
 
-**Intro movies** [V]: `[video] skip_intro_movies=1` (settings file; `SSA_SETTINGS`) ends the start-up logos at their first frame
+**Intro movies** [V]: `[video] skip_intro_movies=1` (settings file; `SKY_SETTINGS`) ends the start-up logos at their first frame
 through `BinkOpen`: the adapter's `IntroMovies` are `gsbp_atvi` (the Activision logo, a Bink 1 `.bik`: the `.bk2` is missing
 on the disc, the game falls back to it), `gsbp_alchemy` (the other `.bik`, never opened in the runs: [?]) and
 `gsbp_vvisions` (Bink 2). The story and zone movies (`fmv01`..`fmv14`, `<zone>_intro`...) always play. Run (settings file
@@ -367,11 +367,11 @@ the pacing is gone, not the ceiling.
 
 **Glyphs** [V]: the texture dump holds no font atlas because the game composes strings on the CPU; the buttons come from the fonts' `button` images, redrawn in guest memory (`glyphs::MemoryImage`): [input.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/xbox360/input.md), "Glyphs", [art.md](art.md), "Button pictures". (Negative result of the first pass, superseded 2026-10-27.)
 
-**HD texture packs** [V]: `SSA_TEXTURE_DUMP=1` wrote 318 textures to `<data>/Swapforce/textures-dump/` by the tutorial; a
+**HD texture packs** [V]: `SKY_TEXTURE_DUMP=1` wrote 318 textures to `<data>/Swapforce/textures-dump/` by the tutorial; a
 solid-colour 872x400 DDS named as the dump file of the title logo, in `<data>/Swapforce/textures/`, was found (`[texpack] 1
 replacement textures in .../Swapforce/textures (0 invalid, 0 ignored)`) and the legal screen showed it.
 
-**The icon** [V]: SSABuild's `BundleIcon` takes `default.xex`'s XDBF title icon, whatever the game: Swap
+**The icon** [V]: SkyBuild's `BundleIcon` takes `default.xex`'s XDBF title icon, whatever the game: Swap
 Force's is a 64x64 PNG ("Skylanders SWAP Force", read with `ReadTitleMetadata`), and sips and iconutil turn it into a
 `.icns`. Nothing game-specific is missing (`game.txt`, `art.json` and the kit's per-game `Info.plist` are there). A whole
 kit install with the icon in the Dock was not run [?].

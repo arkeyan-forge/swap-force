@@ -42,8 +42,8 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
 - **Python** (developers): `python3 -I tools/shaders/swapforce_extract.py <iso> private/swapforce/shaders/disc
   [<dump dir>]`: reads `shaders_xenon.pak` (1 s; `ARCHIVES=all` scans all 2231 `.pak` files, 70 s with 4 processes),
   writes `<sha1 prefix>.vs|.ps`, `manifest.txt` and, with a dump dir, `missing.txt`.
-- **SSABuild** (C++, the player kit): `shaders=igz:/archives/shaders_xenon.pak` in `games/swapforce/game.txt`.
-  `tools/ssabuild/igz_shaders.cpp` reads IGZ v7 too (`ForEachContainerV7`), through the runtime's IGA reader, which
+- **SkyBuild** (C++, the player kit): `shaders=igz:/archives/shaders_xenon.pak` in `games/swapforce/game.txt`.
+  `tools/skybuild/igz_shaders.cpp` reads IGZ v7 too (`ForEachContainerV7`), through the runtime's IGA reader, which
   reads v10 since 2026-10-27 (`runtime/host/art/alchemy_archive.cpp`). It writes the same 1074 containers as the Python
   tool (compared by content). Then, as for Giants, the short headless run dumps what the game builds at run time and
   the cache is rebuilt ([kit_contract.md](https://github.com/arkeyan-forge/forge/blob/main/docs/release/launcher/kit_contract.md)). The two `gfx` defaults come
@@ -51,16 +51,16 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
   `2BE3ED3FB609BD71.ps`, `515F525572999F76.ps`), and **`811CCF44C1A9FC42.ps`** only on the tutorial's loading screen
   (`[render] no translated pixel shader 811CCF44C1A9FC42 (primitive 6)` right after `open \archives\tutorial_a.pak`
   and `fmv01`), after the menus.
-- **The movie pass reaches it** [V] (2026-10-27): `games/swapforce/game.txt` gives SSABuild `movie_portal=emulated`
+- **The movie pass reaches it** [V] (2026-10-27): `games/swapforce/game.txt` gives SkyBuild `movie_portal=emulated`
   (an empty emulated portal), `movie_press=` (A every 2 s from 10 to 110 s: the title, Story Mode, the first NEW slot,
   the difficulty) and `movie_shaders=7` (the run ends once 7 new shaders are dumped, at the latest after 120 s), so
-  the installed game has **1081** shaders. Until then the pass ran with `SSA_PORTAL=none` and stopped 8 s after the
+  the installed game has **1081** shaders. Until then the pass ran with `SKY_PORTAL=none` and stopped 8 s after the
   first new shader (1080 shaders): with no portal, Swap Force stops after the title on its own **"PORTAL
   DISCONNECTED"** screen (two `SL_LOAD_SLOTS Thread` lines, then nothing; [status.md](status.md), "Open problems"),
   so presses alone could not reach the loading screen. Headless with the empty emulated portal, the installed game
   dumps `811CCF44C1A9FC42.ps` ~34 s in at a load of 4. If a slow machine does not get there in 120 s, the install
   still ends with the shaders found (a `warning: 7 expected` line) and only that screen's draws are skipped.
-- The cache: `SSA_GAME=swapforce SSA_SHADER_OUT=<dir> tools/shaders/build_cache.sh <iso> <containers dir>` writes
+- The cache: `SSA_GAME=swapforce SKY_SHADER_OUT=<dir> tools/shaders/build_cache.sh <iso> <containers dir>` writes
   `<dir>/shader_cache.cpp` (input in `<dir>/input`) without touching `private/swapforce/ppc/`. From the 1074 disc
   containers and the 7 dump-only ones: **1081 of 1081 translated, 0 without DXIL** (5 min on an M1 Pro), and the 556
   hashes of the dump cache are all in it.
@@ -76,8 +76,8 @@ Against the 556 containers of the run-time dumps (title, menus, tutorial level):
 | on the disc, never dumped | 525 (levels and effects the runs did not reach) |
 
 ### From a run-time dump (the first cache, still useful to find run-time shaders)
-As Giants' first cache [V]: `SSA_DUMP_SHADERS=<dir>` on a run through the title and the tutorial level
-(`private/swapforce/run.sh`, A presses, `SSA_PORTAL_PLACE=new:9`), then `SSA_GAME=swapforce tools/shaders/build_cache.sh
+As Giants' first cache [V]: `SKY_DUMP_SHADERS=<dir>` on a run through the title and the tutorial level
+(`private/swapforce/run.sh`, A presses, `SKY_PORTAL_PLACE=new:9`), then `SSA_GAME=swapforce tools/shaders/build_cache.sh
 <disc .iso> <dump dir>` writes `private/swapforce/ppc/shader_cache.cpp`: two runs gave **556 containers, 556 of 556
 translated** (~1 min on an M1 Pro); a third run with that cache dumped no new one, and every draw of the title, menus
 and tutorial has its shader (`skipped 0 (shader)`).
@@ -102,7 +102,7 @@ served SSA and Giants: any colour ramp they read is fixed the same way.)
 Shots (untracked, `private/sfblur/shots/`): `tutorial_t60_aniso16_before.png` / `_after.png` (and `t80`),
 `brn1_crop_aniso16_before.png` (Eruptor green) / `_after.png`, and at anisotropy 1 `tutorial_t60_aniso1_main.png`,
 `brn1_crop_aniso1.png`. **Check it**: the tutorial recipe of [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md) with
-`--anisotropy 16` and `SSA_GPU_SNAPSHOT_SECONDS=60,80`: no green, no smear.
+`--anisotropy 16` and `SKY_GPU_SNAPSHOT_SECONDS=60,80`: no green, no smear.
 
 ### The chain at the end of a level frame (tutorial, `cap` of 2026-10-27, scale 2)
 Passes 14-16 of [boot.md](boot.md#the-tutorials-level-frame-the-pass-list-2026-10-27-swapforce-alchemy-v), by pixel
@@ -136,12 +136,12 @@ differences cannot be ruled out.
 
 ## Tests
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints
-  `1074 distinct (580 vertex)` and `found by the extractor: 549; missing: 7`. SSABuild's C++ extractor on the same
+  `1074 distinct (580 vertex)` and `found by the extractor: 549; missing: 7`. SkyBuild's C++ extractor on the same
   archive writes the same 1074 files (by content), and on Giants' `global.bld` the same 4394 files as before the v10/v7
   change (byte-identical set, 2026-10-27). `SSAArtTest` reads a synthetic IGA v10 fixture (big-endian, 16-byte entries,
   0x800-aligned chunks).
 - Not yet: a game run on the disc-made cache (`private/swapforce/shaders/cache_disc/`, 1081 shaders).
-- The frame snapshots of the runs (`SSA_GPU_SNAPSHOT`): the title screen, menus, loading screen, the HUD and, since 2026-10-27, the tutorial's 3D scene draw like the game ([boot.md](boot.md), "What broke on the way to a level").
+- The frame snapshots of the runs (`SKY_GPU_SNAPSHOT`): the title screen, menus, loading screen, the HUD and, since 2026-10-27, the tutorial's 3D scene draw like the game ([boot.md](boot.md), "What broke on the way to a level").
 
 ## Is it engine-generic?
 The dump path is: any game whose shader Init or Create functions are hooked. The disc path is per archive format:

@@ -9,7 +9,7 @@ Status: day 1 done, scaffolding and XenonRecomp config in place, boot not starte
 | `addresses.h` | the guest functions to hook (`GAME_HOOK_<Name>`) and the guest data it reads |
 | `adapter.cpp` | the `game::Adapter` (`runtime/game.h`) |
 | `info.cpp` | id, name and the supported disc release (title ID, media ID, SHA-256 of `default.xex`) |
-| `game.txt` | what the player kit's SSABuild knows about the game |
+| `game.txt` | what the player kit's SkyBuild knows about the game |
 | `config/` | XenonRecomp input: `SwapForce.toml`, `SwapForce_switch_tables.toml` |
 
 Build: `cmake -S . -B build-swapforce -G Ninja -DSSA_GAME=swapforce`. The generated code is `private/swapforce/ppc/` and the game's

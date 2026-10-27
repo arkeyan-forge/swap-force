@@ -1,7 +1,7 @@
 # XenonRecomp config for Skylanders: Swap Force (Xbox 360, title 415608E9, the USA/Australia disc).
 # Helper addresses from tools/sigmatch (all confidence 1.0, SSA's and Giants' inventories agree); functions and switch
 # tables from tools/find_switch_tables.py (pass 1 without, pass 2 with the pass-1 mapping, merged). Paths are relative to
-# this file laid out as the kit does (config/SwapForce.toml, private/default.xex, ppc/): SSABuild builds that layout from
+# this file laid out as the kit does (config/SwapForce.toml, private/default.xex, ppc/): SkyBuild builds that layout from
 # the player's disc. Output: ppc/ (private/swapforce/ppc in the workshop).
 # Unlike Giants, Swap Force has C++ EH (5930 FuncInfo records, LIBCPMT) and imports __C_specific_handler.
 [main]

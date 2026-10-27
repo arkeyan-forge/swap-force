@@ -37,7 +37,7 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   scaled for resolves) and the tutorial draws like the game: the ship's deck, Eruptor lit with his shadow, the lava
   canyon, bloom and the HUD.
 - **Test aids and the harness** (2026-10-27, guide steps 6 and 12): the tutorial in 25-60 s with an A every 2 s;
-  `SSA_LEVEL=<area>/<map>` (e.g. `barrens/brn1`) starts a new game in another zone (`engines/alchemy/zone.cpp`);
+  `SKY_LEVEL=<area>/<map>` (e.g. `barrens/brn1`) starts a new game in another zone (`engines/alchemy/zone.cpp`);
   `SWAPFORCE_ISO=<disc> tools/test_all.sh --only swapforce` (one 100 s run, its references in
   `private/test-refs/swapforce/`).
 - **The freeze ~58 s into the tutorial fixed** (2026-10-27) [V]: the Wwise voice service spun on a 4-context XMA voice
@@ -50,20 +50,20 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   LightCores, swappers (two tags, mixed halves too), magic items; the Toy Box opens at the game's "place your Skylander"
   prompt (the CMagicMoment reader). Below, "Figures and the portal".
 - **In the player kit** (2026-10-27, guide step 13, macOS) [V]: `KIT_GAMES="ssa giants swapforce" tools/make_kit.sh` packs Swap Force
-  (`games=ssa,giants,swapforce`; the default stays `ssa giants` until the user decides to ship it); SSABuild installs `SSFRecomp` from the disc in ~5 min and the installed game plays
+  (`games=ssa,giants,swapforce`; the default stays `ssa giants` until the user decides to ship it); SkyBuild installs `SSFRecomp` from the disc in ~5 min and the installed game plays
   the tutorial. Below, "Installing Swap Force". One run-time shader of 7 is not caught yet ([shaders.md](shaders.md)).
 - **Parity with SSA and Giants** (2026-10-27) [V]: [parity.md](parity.md) has every row with its proof. Ultrawide works (the scene pass and the
   world camera, 2560x1080 and 3440x1440 in the tutorial); HD texture packs work (per-game folder); the game's own icon comes from the XDBF at
   install; the portal prompt and the saves with their backups were checked; button glyphs work by redrawing the fonts' button images in guest memory ([art.md](art.md), "Button pictures"), and the 60 fps option works (the game reads its present interval from its device; the runtime shows it 1 at 60, [boot.md](boot.md), "Frame rate"). Details: [boot.md](boot.md),
   "Ultrawide, frame rate, glyphs, texture packs, icon, saves".
 - **The zone tour and the pipeline baseline** (2026-10-27, guide step 10) [V]: every loadable zone of the disc (195)
-  started alone with `SSA_LEVEL`: **136 reached and ran to the end, 20 fault (all survival arenas, one game spot), 39
+  started alone with `SKY_LEVEL`: **136 reached and ran to the end, 20 fault (all survival arenas, one game spot), 39
   black** (37 turbozone staging areas, `brn3`, `ww1`); `games/swapforce/pipelines/baseline.zst` (686 pipelines); a
   loading wait on every zone load; 30 fps locked in three heavy zones; a runtime start-up race fixed (it crashed ~5 % of
   runs). Below, "Zone tour".
 - **The survival arenas, the black zones and the save-slot stop** (2026-10-27) [V]: the 20 survival arenas started
-  alone now play (they need Solo Survival's game mode, which `SSA_LEVEL` sets); `brn3` and `ww1` are not black with the
-  movies on (`SSA_SKIP_MOVIES` stalled their intro cutscene; the tour plays their movies); the 37 black staging areas
+  alone now play (they need Solo Survival's game mode, which `SKY_LEVEL` sets); `brn3` and `ww1` are not black with the
+  movies on (`SKY_SKIP_MOVIES` stalled their intro cutscene; the tour plays their movies); the 37 black staging areas
   are pieces of their Swap Zone, never entered alone; the stop at the save slots under load was a race in the game's
   save tasks, fixed (`games/swapforce/save_tasks.cpp`). The tour: **158 of 195 zones reached and ran to the end, 0
   fault, 37 black (the staging areas)**. Below, "Zone tour" and "The stop at the save slots".
@@ -82,6 +82,12 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   hand), and `skip_intro_movies` skips the logos. Proof and the addresses in [boot.md](boot.md) ("Text and voice language,
   the intro movies"); rows in [parity.md](parity.md).
 
+- **Arena modes with two players, the story's start, the fall check** (2026-10-27) [V]: from the Arena Modes
+  menu with pad 2 (`SSA_PRESS2=start:5000`) and a second figure placed through the Toy Box's Player 2 prompt, Battle Arena
+  (Rampart Ruins) and Ring Out play with two HUDs and no fault; the survival modes need an arena unlocked by the story (all
+  locked on a new save); a new game's story plays the tutorial into the first Barrens level. The stuck-falling threshold
+  is scaled by 30 / fps above 30 fps (`fall_check.cpp`). What stays open: [100.md](100.md).
+
 ## Where to start
 - The procedure: [the day-1 walkthrough](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/day1.md); the engine:
   [docs/engines/alchemy/README.md](https://github.com/arkeyan-forge/forge/blob/main/docs/engines/alchemy/README.md); the previous Alchemy port:
@@ -90,10 +96,10 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   ([sigmatch.md](https://github.com/arkeyan-forge/forge/blob/main/docs/tools/toolchain/sigmatch.md), "Giants' inventory").
 - **Run it** [V]: `-DSSA_GAME=swapforce`, `nice ninja -C build-swapforce -j4 SSARecomp`, then the isolation block of
   [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md) with `./build-swapforce/SSARecomp/SSFRecomp`,
-  `SSA_SKIP_MOVIES=1 SSA_PORTAL=emulated SSA_PORTAL_PLACE=new:9` (Eruptor) and an A every 2 s from 14 to 50 s
-  (`SSA_PRESS=a:14,a:16,...,a:50`): the tutorial plays at ~25 s on a quiet machine, ~45-60 s under a heavy load
+  `SKY_SKIP_MOVIES=1 SKY_PORTAL=emulated SKY_PORTAL_PLACE=new:9` (Eruptor) and an A every 2 s from 14 to 50 s
+  (`SKY_PRESS=a:14,a:16,...,a:50`): the tutorial plays at ~25 s on a quiet machine, ~45-60 s under a heavy load
   ([testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md#swap-force-to-the-tutorial-in-25-60-s-swapforce)). Another
-  level: `SSA_LEVEL=barrens/brn1` (a zone of `zoneinfos.pak`, [debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md)).
+  level: `SKY_LEVEL=barrens/brn1` (a zone of `zoneinfos.pak`, [debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md)).
 - **Test it**: `SWAPFORCE_ISO=<disc> tools/test_all.sh --only swapforce` (build, unit tests, one 75 s run to the
   tutorial with the fault/stub, expected-point, fps, frame and audio checks; `--record` once on a good build).
 
@@ -101,11 +107,11 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
 - Not compared with a console yet: a `k_16_16_16_16_FLOAT` resolve nothing drew, a purple HUD panel in some frames,
   the portal's magic moment ([boot.md](boot.md), "Still open").
 - **The Toy Box cannot put a swapper**: each player has one seat, a swapper needs its two halves on the portal for the
-  same player (below, "Figures and the portal"). `SSA_PORTAL_PLACE` and the F7 key can.
+  same player (below, "Figures and the portal"). `SKY_PORTAL_PLACE` and the F7 key can.
 - **[V] The "stall at the save slots" with no portal is the game's own "PORTAL DISCONNECTED" screen** (2026-10-27):
   the title's A gives the device selector and two `SL_LOAD_SLOTS Thread` lines, then the game shows that screen and
-  waits for a portal (`SSA_PORTAL=none`, headless or not; a snapshot of an offscreen run shows it). It is what the
-  kit's movie pass hit (it ran with `SSA_PORTAL=none`); with `SSA_PORTAL=emulated` and an empty collection, headless
+  waits for a portal (`SKY_PORTAL=none`, headless or not; a snapshot of an offscreen run shows it). It is what the
+  kit's movie pass hit (it ran with `SKY_PORTAL=none`); with `SKY_PORTAL=emulated` and an empty collection, headless
   runs pass the slots. Not a runtime bug: as on a console, Swap Force needs a portal past the title.
 - **[V] The stall under a heavy load is fixed** (2026-10-27): a race in the game's own save tasks (below, "The stop
   at the save slots").
@@ -114,7 +120,7 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
 
 ## Zone tour (2026-10-27) [Alchemy] [SwapForce]
 `tools/pipelines/tour_swapforce.sh <iso> <work dir> [<zone>...]` ([testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md#swap-force-to-the-tutorial-in-25-60-s-swapforce))
-runs each zone alone: a new game with `SSA_LEVEL=<zone>`, Eruptor on the emulated portal (`new:9`), A every 2 s to 22 s,
+runs each zone alone: a new game with `SKY_LEVEL=<zone>`, Eruptor on the emulated portal (`new:9`), A every 2 s to 22 s,
 then walking, attacking and jumping, 40 s, offscreen, isolated, one run at a time. One line per zone in
 `<work>/summary.tsv`: the zone's `.pak` opened, draw-time builds after it, faults, last frame, median fps, max draws, the
 verdict, and the mean brightness of a snapshot 4 s before the end (`black` below 6). The tour of 2026-10-27 is in
@@ -124,8 +130,8 @@ verdict, and the mean brightness of a snapshot 4 s before the end (`black` below
 `/archives/zoneinfos.pak` (200; the name the game looks up, e.g. `multiplayer/pvp/pvp_sandcastle/pvp_sandcastle`)
 whose map has its own `/archives/<map>.pak`: **195**. Left out, no `.pak` of their own (pieces of other zones):
 `golden/golden`, `templates/lockpickminigame_template`, `townarchetypes/adventurepack1edc`, `adventurepack2edc`,
-`town_statics`. 158 of the 195 names are longer than the tutorial's (30 characters, up to 72): `SSA_LEVEL` now writes a
-longer name over the engine's name table ([debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md), `SSA_LEVEL`;
+`town_statics`. 158 of the 195 names are longer than the tutorial's (30 characters, up to 72): `SKY_LEVEL` now writes a
+longer name over the engine's name table ([debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md), `SKY_LEVEL`;
 `engines/alchemy/zone.cpp`).
 
 **Results** (the last run of each zone; the start-up crashes and the slot stops of the first pass were run again with
@@ -151,11 +157,11 @@ looked at: a lobby or a cutscene counts too (the `pvp`/`ringout` arenas end on a
   `pc __imp__sub_82A5D168 + 92`, from `sub_82A5D788` <- `sub_82A128A0` <- `sub_82A147E8` <- `sub_829A72F0`) at the
   first wave. The arena's objective component starts in `sub_82A621F8`: it reads the game mode (`sub_82989648`, the
   game object's +1184) and builds its rules object at its +28 only in modes 4, 32, 64, 128 and 256; `sub_82A5D168`
-  calls that object. `SSA_LEVEL` starts a new game, so the mode was Story Mode's (1) and +28 stayed null. The way the
+  calls that object. `SKY_LEVEL` starts a new game, so the mode was Story Mode's (1) and +28 stayed null. The way the
   game does it, seen in a live run through the menus (Arena Modes > Solo Survival; a new save has every arena locked, so
   the menu cannot go further): the menu item calls SetGameMode (`sub_829A8928`) with **64**; entering a zone
   (`sub_829C6220`) then calls SetGameMode with the game object's "next mode" (+1188, `sub_82989658` stores it). So
-  `SSA_LEVEL` on a `multiplayer\survival\` zone stores 64 as the next mode when the zone is looked up
+  `SKY_LEVEL` on a `multiplayer\survival\` zone stores 64 as the next mode when the zone is looked up
   (`engines/alchemy/zone.cpp`, `game::GameInstance`, `NextGameModeOffset`, `GameModeSoloSurvival` in
   `games/swapforce/addresses.h`), and the game applies it itself: `[level] the next zone's game mode 1 -> 64`. All 20
   ran 75 s with no fault at 30 fps, 615-1595 draws a frame, the arena's score HUD and the waves of enemies on screen
@@ -173,13 +179,13 @@ looked at: a lobby or a cutscene counts too (the `pvp`/`ringout` arenas end on a
   `brn1_digger_staging_characters.pak` after its own archives (its tour log).
   The five `ap1_*`/`ap2_*` staging areas (adventure packs) show their scenery from their start. Nothing to fix; the tour
   keeps them as the expected `black`.
-- **`barrens/brn3` and `wildwoods/ww1`: black only with `SSA_SKIP_MOVIES`** [V] (2026-10-27). Both load with a story
+- **`barrens/brn3` and `wildwoods/ww1`: black only with `SKY_SKIP_MOVIES`** [V] (2026-10-27). Both load with a story
   movie (`_loadMovieName` `fmv05`, `fmv02`), then play their intro **inside a cutscene** (`brn3_intro.pak`,
   `ww1_intro.pak`: a `movie_stage` and its audio) that shows the Bink movie (`BRN3_Intro.bk2`, 1063 frames;
-  `WW1_Intro.bk2`, 1567). The frame dump of a black `ww1` frame (`SSA_DUMP_FRAME=75`): the scene is drawn in full
+  `WW1_Intro.bk2`, 1567). The frame dump of a black `ww1` frame (`SKY_DUMP_FRAME=75`): the scene is drawn in full
   (the composite resolve is bright), then the last pass draws a full-screen quad textured with the 1040x620 movie
-  surface over it. `SSA_SKIP_MOVIES` cuts every movie to one frame: the cutscene keeps showing that black surface and
-  never ends (black from 65 to 200 s; START does not skip it). With the movies on (`SSA_SKIP_MOVIES=0`, no press during
+  surface over it. `SKY_SKIP_MOVIES` cuts every movie to one frame: the cutscene keeps showing that black surface and
+  never ends (black from 65 to 200 s; START does not skip it). With the movies on (`SKY_SKIP_MOVIES=0`, no press during
   them), `ww1` plays `fmv02` then `ww1_intro`, and Eruptor is in the level with the HUD at ~200 s; `brn3` likewise
   (`fmv05`, `brn3_intro`, Eruptor on the ship's deck at ~190 s). A test aid's limit, not a port bug: a player sees the
   movies. The tour runs these two with the movies on (`TOUR_MOVIE_SECONDS`, 240 s, A every 2 s to 70 s): both `ok`
@@ -251,7 +257,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   `config/swapforce/` (`game.txt`, `SwapForce.toml`, the switch tables), `commands/swapforce/`,
   `lib/swapforce/runtime/` (and its own `libSSARecompGpu.a`, which differs from SSA's, as Giants' does:
   `kit_commands.py` keeps it per game), `res/swapforce/Info.plist` and
-  `ppc_config_sha256.swapforce` in `kit.txt`. Nothing else in SSABuild needed a change: the disc is told by
+  `ppc_config_sha256.swapforce` in `kit.txt`. Nothing else in SkyBuild needed a change: the disc is told by
   `default.xex` (`5d9a3bc3...`), the shaders by `shaders=igz:/archives/shaders_xenon.pak`, the name by
   `runtime=SSFRecomp`. Building the kit needs `private/swapforce/ppc/ppc_config.h` and `ppc_context.h` (XenonRecomp on
   `games/swapforce/config/SwapForce.toml`; the context is SSA's, byte for byte).
@@ -260,9 +266,9 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   `KIT_GAMES="ssa giants"` kit of the same tree (`diff -rq`: only `kit.txt` and the `swapforce` folders differ).
   SSA and Giants install from the three-game kit as before [V]: SSA 223 s (3 run-time shaders), Giants 603 s (50 run-time
   shaders; shaders 453 s then 56 s), both `@done`.
-- **The install** [V] (the zip extracted, `SSABuild --iso <disc> --out <game folder> --jobs 4`, M-series Mac, load
-  average 5-20, another kit build running for part of it; scratch `SSA_SETTINGS`, `SSA_LAUNCHER_INI`,
-  `SSA_COLLECTION`, `SSA_SAVE_DIR`, `SKYLANDERS_DATA`, `SSA_LOG`): `game: Skylanders: Swap Force`; disc 0 s
+- **The install** [V] (the zip extracted, `SkyBuild --iso <disc> --out <game folder> --jobs 4`, M-series Mac, load
+  average 5-20, another kit build running for part of it; scratch `SKY_SETTINGS`, `SKY_LAUNCHER_INI`,
+  `SKY_COLLECTION`, `SKY_SAVE_DIR`, `SKYLANDERS_DATA`, `SKY_LOG`): `game: Skylanders: Swap Force`; disc 0 s
   (`/archives/shaders_xenon.pak: 62 entries, 61 IGZ, 1074 shaders (580 vertex, 494 pixel)`), recompile 5 s (323
   files), shaders 122 s (1074 of 1074, 0 without DXIL), compile 151 s, link 0 s (`SSFRecomp.app`, 84 MB), movies
   10 s (6 shaders built at run time), shaders 9 s (1080 of 1080), compile 6 s, link 0 s: **306 s**, `@done
@@ -280,22 +286,22 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   stays `ssa giants`) [V]: Windows kit 867 files, 95 MB, zip 37 MB; Linux kit 863 files, 109 MB, zip 39 MB; `kit_scan` clean on both. Three
   small fixes were needed, all generic:
   1. **The Linux kit had no Swap Force**: the Docker run of `make_kit.sh` did not pass `KIT_GAMES` on, so the container built the
-     default two games (SSABuild then said "this disc is not one of the games these tools build"). It passes it now.
+     default two games (SkyBuild then said "this disc is not one of the games these tools build"). It passes it now.
   2. **The Windows game faulted at start on `extrq`** (exception 0xC000001D, an illegal instruction): `-march=btver2` includes
      AMD's SSE4a, and the compiler used `extrq`/`insertq` for byte extracts in Swap Force's translated vector code (96 of them in
      `SSFRecomp.exe`; Wine on Rosetta rejects it, and so would any Intel PC). `cmake/toolchains/x86_64-w64-mingw32-clang.cmake` now adds
      `-mno-sse4a` (the kit's `compile.args` get it; 0 left in the executable). SSA and Giants were not affected in the tests but
      get the flag too; the Windows kit was rebuilt from clean (13 min).
-  3. `tools/linux/kit_test.sh` and `tools/windows/wine_smoke_test.sh` take `SSA_PORTAL_PLACE` from the environment (`new:9`: Swap Force has
+  3. `tools/linux/kit_test.sh` and `tools/windows/wine_smoke_test.sh` take `SKY_PORTAL_PLACE` from the environment (`new:9`: Swap Force has
      no `new_14.sky` figure to place).
 - **Linux, Docker** [V] (`tools/linux/kit_test.sh ssa-player-ubuntu24`, amd64 under Rosetta on an M-series Mac, lavapipe, the kit mounted, the
-  disc read only, `SSA_PORTAL_PLACE=new:9`, A every 3 s from 14 s): SSABuild from the disc to `@done /game/out/SSFRecomp` (852 MB game
+  disc read only, `SKY_PORTAL_PLACE=new:9`, A every 3 s from 14 s): SkyBuild from the disc to `@done /game/out/SSFRecomp` (852 MB game
   folder): `game: Skylanders: Swap Force`, 1074 of 1074 shaders (33 s), compile 566 s (Rosetta), link 41 s, movies 38 s (7 shaders built at
   run time), second pass 13 s: `1081 of 1081`; about 11 min in all. The game, offscreen, 600 s: `[gpu] Vulkan on llvmpipe`, `shader cache: 1081
   shaders`, `create save: "SWAPFORCE_OPTIONS"` then `"SWAPFORCE_0"`, `open \archives\tutorial_a.pak`, `eruptor.pak`, 535 draws a
   frame at 1.5-2.3 fps (software GPU under emulation), no fault, no `no translated` line (killed by the 600 s timeout). A 150 s run only
   reached the loading screen: at 2 fps give it 300 s or more.
-- **Windows, cross build and Wine** [V] (the macOS kit's `SSABuild --kit <Windows kit> --toolchain <llvm-mingw 20260922>` over the `ssabuild-work`
+- **Windows, cross build and Wine** [V] (the macOS kit's `SkyBuild --kit <Windows kit> --toolchain <llvm-mingw 20260922>` over the `ssabuild-work`
   of a native macOS install of the same disc, 8 min under load: shaders 156 s, compile 166 s, movies 120 s): compile 642 s (a clean cross build, load ~5), link 1 s, `SSFRecomp.exe`. Wine 10, headless
   (`tools/windows/wine_smoke_test.sh`, `EXE=`, A every 2 s from 14 to 110 s, 150 s): `create save: "SWAPFORCE_OPTIONS"` and
   `"SWAPFORCE_0"`, `open \archives\tutorial_a.pak`, `eruptor.pak`, no `Fault`, no `[guard]` line, alive until the timeout. The cross
@@ -317,7 +323,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
 - The disc: `/archives/` only: 2231 `.pak`, 92 `.bk2` (Bink 2), 2 `.bik` (Bink 1: the Activision and Alchemy logos),
   plus `default.xex`, `cachenonce.txt`, `nxeart`. A `.pak` is an **IGA v10, big-endian** archive (Giants: IGA v8,
   little-endian, in `.arc`/`.bld`): every Alchemy reader (`runtime/host/art/alchemy_archive.cpp`, `tools/toy_tables.py`,
-  SSABuild's shader extractor) needs the new version. Strings in the XEX name `.igz` files inside the paks
+  SkyBuild's shader extractor) needs the new version. Strings in the XEX name `.igz` files inside the paks
   (`fonts/ProximaNova-*.igz`, `UI/*.igz`), `igImage2`, `igObject`: Alchemy.
 
 ### sigmatch
@@ -340,8 +346,8 @@ version.
 
 ## Figures and the portal (2026-10-27) [Alchemy] [SwapForce] [V]
 
-Runs: `private/swapforce/run.sh` (the isolation block), the tutorial presses, `SSA_PORTAL=emulated`,
-`SSA_TRACE_FILES=1`, `SSA_PORTAL_LOG=1`, `SSA_GPU_SNAPSHOT_SECONDS`; real figures are copies of the owner's dumps in
+Runs: `private/swapforce/run.sh` (the isolation block), the tutorial presses, `SKY_PORTAL=emulated`,
+`SKY_TRACE_FILES=1`, `SKY_PORTAL_LOG=1`, `SKY_GPU_SNAPSHOT_SECONDS`; real figures are copies of the owner's dumps in
 `private/swapforce/figures/` (the runs write their copies only).
 
 ### Level 20 [SwapForce] [V]
@@ -355,7 +361,7 @@ with 132400 shows 17 ([figures.md](https://github.com/arkeyan-forge/forge/blob/m
   `sub_82A7B550` sorts the portal by its id: first byte 1 is kind 0 (second byte under 5, or 10-49: Spyro's Adventure's
   `01 28`, `01 29`, `01 2C`) or kind 1 (5-9 or 50 and up: Giants' `01 34`, `01 3C`, `01 3D`, `01 48`); first byte 2 or
   more is kind 2, 0 is kind 3. The game wants kind 2 or more.
-- **Seen in runs:** `01 28` and `01 48` (`SSA_PORTAL_MODEL`): "WRONG PORTAL VERSION. An old Portal of Power is connected
+- **Seen in runs:** `01 28` and `01 48` (`SKY_PORTAL_MODEL`): "WRONG PORTAL VERSION. An old Portal of Power is connected
   to the console. Please connect a SWAP Force Portal to your console." over the title, and the game stays there; `02 03`
   plays. So every Swap Force or later portal works and every Spyro's Adventure or Giants portal is refused
   (`PortalVerdictFor("swapforce", ...)`, `SSAPortalTest`).
@@ -363,7 +369,7 @@ with 132400 shows 17 ([figures.md](https://github.com/arkeyan-forge/forge/blob/m
   before, which the game takes too. The log: `[portal] model: 02 03 Swap Force portal; Swap Force: works (emulated)`.
 
 ### Figures of each type
-The portal reports 16 slots (2 status bits each, `EmulatedPortal::SlotCount`); `SSA_PORTAL_PLACE` takes a list, each in
+The portal reports 16 slots (2 status bits each, `EmulatedPortal::SlotCount`); `SKY_PORTAL_PLACE` takes a list, each in
 its own slot. Each row: the archives the game opened (`[file] open \archives\<name>.pak`) and a frame in the tutorial with
 the character's name on the HUD.
 
@@ -400,11 +406,11 @@ Swap Force runs every figure request through the **CMagicMoment** singleton (pub
 `src/game/magic_moment_watch.cpp`, MIT; checked here: `sub_82858F70` stores the instance at `0x83131BE0`, and
 `MM_pleaseplaceText` sits at `0x82110260` as that source says). `games/swapforce/swapforce_portal_prompt.*` and the
 adapter's `ReadPortalPrompt` read three words a frame: the instance, its state (`+0x20`), its player (`+0x148`);
-`SSA_PORTAL_LOG=1` prints `[toybox] portal prompt: magic moment state S, player P, reason R` on every change.
+`SKY_PORTAL_LOG=1` prints `[toybox] portal prompt: magic moment state S, player P, reason R` on every change.
 - States seen with no figure (run `prompt1`): `0` in the front end, `1` and `0` once at the title, then after the
   difficulty `1, 2, 3, 5` (player 0): the prompt. `5` (Idle) and `13` (Dead) ask that player for a Skylander, `16`
   (Error) is a "too many" screen (`ClassifySwapForce`, `SSAPortalTest`).
-- The run: `[toybox] prompt for player 1`, `open (1 figures, emulated portal)`, `SSA_TOYBOX_SCRIPT=Return:75` puts Scratch:
+- The run: `[toybox] prompt for player 1`, `open (1 figures, emulated portal)`, `SKY_TOYBOX_SCRIPT=Return:75` puts Scratch:
   `P1: Scratch`, `the game took Scratch (slot 0, 0.2 s after the change)`, state 7, `the prompt is gone`, `closed`,
   `catgryphon.pak` opens and Scratch plays the tutorial.
 - [?] Player 2's prompt, the Dead state and the error screen were not run.

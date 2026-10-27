@@ -39,7 +39,7 @@
 #define GAME_HOOK_BinkOpen sub_83083260
 #define GAME_HOOK_BinkClose sub_83084128
 
-// SSA_LEVEL (engines/alchemy/zone.cpp): the zone list's lookup by name, (list, const char* name) -> index or -1; it
+// SKY_LEVEL (engines/alchemy/zone.cpp): the zone list's lookup by name, (list, const char* name) -> index or -1; it
 // hashes the name (sub_8295FE60) and looks it up (sub_82461980). Found from the level loader sub_829EC0F0, which reads
 // the zone's archives (the "generated/maps/%s_characters" format) after this lookup.
 #define GAME_HOOK_Zone_IndexByName sub_829EA688
@@ -48,6 +48,12 @@
 // its worker thread set the done flag (game::SaveTaskDone). Its start, sub_829CF218, clears that flag after starting
 // the thread, so a worker that ends first loses it (the stop at the save slots).
 #define GAME_HOOK_SaveTask_Poll sub_829CF1C0
+
+// The jump component's stuck-falling check (games/swapforce/fall_check.cpp): (component) -> void, called every frame; it
+// compares the squared distance moved since the last frame (the position at +144..+152 against the object's) with
+// (the config's threshold at +92 x the float at +104 of the component)^2. Found by its reflection names and read in the
+// recompiled code; the same address as the other Swap Force port's note, checked here.
+#define GAME_HOOK_FallCheck sub_82A4A828
 
 // Languages (games/swapforce/language.cpp, boot.md "Text and voice language"): Language_Get is the title's one reader of the
 // console language, XGetLanguage mapped to an IG_CORE_LANGUAGE value (6 English, 8 French), returned in r3; Language_SoundPak
@@ -100,13 +106,13 @@ namespace game
     constexpr uint32_t UltrawideCompositeVertices = 6;
     constexpr int UltrawideCompositeSlot = 0;
     constexpr bool UltrawideCompositeVpos = false;
-    constexpr std::string_view FirstZone = "tutorial\\tutorial_a\\tutorial_a"; // a new game's first zone (SSA_LEVEL)
+    constexpr std::string_view FirstZone = "tutorial\\tutorial_a\\tutorial_a"; // a new game's first zone (SKY_LEVEL)
     // The engine's name table (sub_8294EA00 turns a name handle into its string, sub_82954BA0 returns the table, sub_82954080
     // clears it): a u32 generation, 32768 u32 string offsets, at +0x20004 the u32 end of the strings, at +0x20008 the
     // strings, packed and NUL-terminated. A new game's first zone is the table's last string when it is looked up, so
-    // SSA_LEVEL can write a longer zone name there and move the end (engines/alchemy/zone.cpp).
+    // SKY_LEVEL can write a longer zone name there and move the end (engines/alchemy/zone.cpp).
     constexpr uint32_t NameTable = 0x831379A8;
-    // The game mode (SSA_LEVEL in a survival arena, engines/alchemy/zone.cpp). The game object is a function-local
+    // The game mode (SKY_LEVEL in a survival arena, engines/alchemy/zone.cpp). The game object is a function-local
     // static (sub_829B05A8 returns it, built before the title); it holds the mode at +1184 (sub_82989648 reads it;
     // SetGameMode sub_829A8928 stores it and tells the mode's systems) and the next zone's mode at +1188 (sub_82989658
     // stores it). Entering a zone (sub_829C6220) keeps the mode at +1180 and calls SetGameMode with the next one.
@@ -120,6 +126,7 @@ namespace game
     // has its busy byte at +185 and its igThread at +188 (that thread's "running" byte at +16, set before the thread is
     // resumed and cleared by the thread's trampoline sub_823F3B70 after the worker returns); every worker sets the done
     // byte as its last store (sub_829CAA90 ...).
+    constexpr uint32_t FallCheckScaleOffset = 104; // the float multiplying the stuck-falling threshold in a jump component
     constexpr uint32_t SaveTaskDone = 0x8320ABC1;
     constexpr uint32_t SaveTaskBusyOffset = 185, SaveTaskThreadOffset = 188, ThreadRunningOffset = 16;
 }
