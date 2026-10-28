@@ -34,6 +34,11 @@
 #define GAME_HOOK_Xma2_VoiceKick sub_82F9FED8
 #define GAME_HOOK_Xma1_LockAll sub_82FAB8E0
 
+// LZMA (engines/alchemy/lzma.cpp): the LZMA SDK's LzmaDec_DecodeReal (9.x), the inner loop of every archive chunk's
+// decode, found by its constants (kTopValue lis 256, the literal table at probs + 3692 bytes, kMatchSpecLenStart 274);
+// the same code, byte for byte in its asm, in Giants and Swap Force.
+#define GAME_HOOK_LzmaDec_DecodeReal sub_82476EF8
+
 // Bink 2 (runtime/d3d/bink_display.cpp): BinkOpen calls the header reader sub_83081CE8 (shape 1.00 against Giants');
 // BinkClose sets HBINK+76, then frees (0.94 against Giants', the same first 30 instructions).
 #define GAME_HOOK_BinkOpen sub_83083260
@@ -48,6 +53,10 @@
 // its worker thread set the done flag (game::SaveTaskDone). Its start, sub_829CF218, clears that flag after starting
 // the thread, so a worker that ends first loses it (the stop at the save slots).
 #define GAME_HOOK_SaveTask_Poll sub_829CF1C0
+
+// The render thread's wait for its last swap (games/swapforce/swap_wait.cpp): (device, out) -> out[2] = swaps not shown
+// yet; its only caller, the scene's end sub_82515D68, spins on it before D3DDevice_Swap.
+#define GAME_HOOK_SwapWait_Status sub_82F5CB30
 
 // The jump component's stuck-falling check (games/swapforce/fall_check.cpp): (component) -> void, called every frame; it
 // compares the squared distance moved since the last frame (the position at +144..+152 against the object's) with
@@ -135,4 +144,7 @@ namespace game
     constexpr uint32_t FallCheckScaleOffset = 104; // the float multiplying the stuck-falling threshold in a jump component
     constexpr uint32_t SaveTaskDone = 0x8320ABC1;
     constexpr uint32_t SaveTaskBusyOffset = 185, SaveTaskThreadOffset = 188, ThreadRunningOffset = 16;
+    // The D3D device's swap counts (games/swapforce/swap_wait.cpp): issued (D3DDevice_Swap) and shown (the vertical
+    // blank callback sub_82F5C128, at a pending swap's blank).
+    constexpr uint32_t SwapsIssuedOffset = 16968, SwapsShownOffset = 16976;
 }

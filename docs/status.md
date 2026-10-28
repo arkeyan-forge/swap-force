@@ -15,6 +15,12 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
 `private/swapforce/` (day 1: `private/swapforce/day1/`).
 
 ## Status
+- **Loads and frames faster** (2026-10-28) [V]: the archives' LZMA decoding runs as host code (`sub_82476EF8`,
+  [lzma.md](https://github.com/arkeyan-forge/forge/blob/main/docs/engines/alchemy/lzma.md); 262 144 calls checked, 0 differences): 285 MB decode in 4.8-5.9 s of
+  the workers' time instead of 8.5-10.1 s, `brn2` loads in 4.9-5.3 s instead of 5.6-8.7 s; the render thread's spin on
+  its last swap is a wait (`swap_wait.cpp`: 13.8-14.6 -> 9.5 ms of CPU a frame at 30 fps); the pipeline baseline grew
+  711 -> 738 with the swapper Blast Zone, Scorp and seven more figures (Blast Zone's draw-time builds in `brn1` 21 -> 1).
+  Numbers: [renderer_threads.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/renderer_threads.md), "Loading and frame time per game".
 - **Day 1 done** (2026-10-26): identity, libraries, sigmatch against SSA's and Giants' inventories, engine verdict
   (below).
 - **Toys and variants from the disc** (2026-10-26): `/archives/toydata.pak` (IGA v10, XML `.igx` per toy family) read by

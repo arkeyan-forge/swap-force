@@ -9,6 +9,7 @@ Status: day 1 done, scaffolding and XenonRecomp config in place, boot not starte
 | `addresses.h` | the guest functions to hook (`GAME_HOOK_<Name>`) and the guest data it reads |
 | `adapter.cpp` | the `game::Adapter` (`runtime/game.h`) |
 | `info.cpp` | id, name and the supported disc release (title ID, media ID, SHA-256 of `default.xex`) |
+| `swap_wait.cpp` | the render thread's spin on its last swap made a wait for the next graphics interrupt (2026-10-28, [renderer_threads.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/renderer_threads.md), "Swap Force's swap wait") |
 | `game.txt` | what the player kit's SkyBuild knows about the game |
 | `config/` | XenonRecomp input: `SwapForce.toml`, `SwapForce_switch_tables.toml` |
 
