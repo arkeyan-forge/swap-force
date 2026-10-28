@@ -7,7 +7,7 @@ runtime=SSFRecomp
 # the release says it (games.json), Skylauncher offers UPDATE when its release has a higher one.
 version=0.5.0
 toml=SwapForce.toml
-xex_sha256=5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3
+xex_sha256=5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3,3db455f6ee17e8cb3a4d58873d96583d9160396d360a0130e5eb88adad8a5518
 # Shaders: all in one IGA v10 archive of the disc (SkyBuild extracts them itself: tools/skybuild/igz_shaders.cpp).
 shaders=igz:/archives/shaders_xenon.pak
 # The movie pass (the install's headless run that dumps the shaders the game builds at run time): 6 come with the

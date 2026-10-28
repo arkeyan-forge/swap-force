@@ -8,6 +8,7 @@
 | Release | 2013, Vicarious Visions (with Beenox); Redump "Skylanders - Swap Force (USA, Australia) (En,Fr)", 8738846720 bytes: the **reference disc** (decided 2026-10-26) |
 | Title ID, media ID, version | `415608E9`, `22F1FB91`, `0x00000021` (base version the same; disc 1 of 1) |
 | `default.xex` SHA-256 | `5d9a3bc3...` (full: `5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3`), 18563072 bytes; the image is 0x014B0000 bytes at `0x82000000`, entry `0x82F422E8` |
+| Other disc [V] | Redump "Skylanders - Swap Force (Europe) (Es,It)" (2026-10-27): `default.xex` `3db455f6...` (full: `3db455f6ee17e8cb3a4d58873d96583d9160396d360a0130e5eb88adad8a5518`), same size; decrypted, **the same loaded image byte for byte** (only the XEX header differs: media id `0x74FDDE06`, version `0x1C`, region), so the code, addresses and hooks are the reference disc's. Its files: the same 2476, 424 of them language pairs (`_en`/`_fr` become `_es`/`_it`), 73 localised in place (movies, a few levels); `shaders_xenon.pak` identical. Accepted by `info.cpp` and `game.txt`; `test_all.sh --only swapforce` on it: ALL PASS. With the game's language, it picks Spanish (`_es` archives). |
 | Engine | **Alchemy** (like Giants), XDK **2.0.21250** (Giants 21076, SSA 20500); D3D linked as **`D3D9`**, not `D3D9LTCG` |
 
 The user's disc stays outside git (`private/discs/` or the path given on the command line); everything derived from it goes to
