@@ -79,6 +79,11 @@
 // memcpy). Every string of the IGZ files (the TSTR records, sub_82433D90) and of the igx text goes through it. Found from
 // the IGZ loader's TSTR case (sub_82459898) by hand.
 #define GAME_HOOK_String_Intern sub_823EC0D8
+// A font's character lookup (prompt_text.cpp): r3 the igBitmapFont, r4 a u16* character code, r5 a u8* set to 1 when the
+// character is in the alternate list (drawn from the font's "button" image); returns the igCharMetrics or 0. A binary
+// search of the main list (+0x40), then the alternate one (+0x44); nothing cached. Found from the CPU text renderer
+// (sub_82557560, sub_82557A48) by hand.
+#define GAME_HOOK_Font_CharMetrics sub_82553E48
 
 // Ultrawide and the full-resolution scene (games/swapforce/ultrawide.cpp, docs/runtime/gpu/ultrawide.md "Swap Force"): a
 // render-target pass computes its size in sub_8258EBE8 (an explicit size, its parent's or the display's, times its scales);

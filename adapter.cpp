@@ -42,7 +42,7 @@ namespace
 
     // The fonts' "button" images (fonts\\proximanova-body.igz and -info.igz, 32-bit tiled ARGB), found by the XXH3 of their
     // first 4096 bytes; the cells are the buttons' bounding boxes in the stored rows. The info font's holds three more
-    // pictures (keyhole, bottle cap, "!") that stay.
+    // pictures (keyhole, bottle cap, "!") that stay, and an empty part where we add the Start button (every style).
     using glyphs::Cell;
     using glyphs::Glyph;
     constexpr Cell BodyButtons[] = { // 256x83
@@ -56,6 +56,7 @@ namespace
         { Glyph::LeftTrigger, 82, 58, 122, 110 }, { Glyph::RightTrigger, 132, 58, 174, 110 },
         { Glyph::LeftBumper, 5, 71, 74, 101 }, { Glyph::RightBumper, 182, 71, 250, 101 },
         { Glyph::LeftStickIcon, 144, 117, 188, 160 }, { Glyph::RightStickIcon, 201, 117, 245, 160 },
+        { Glyph::Start, 202, 7, 244, 49 }, // ours: an empty part of the image, the title's Start (prompt_text.cpp)
     };
     constexpr glyphs::MemoryImage GlyphImages[] = {
         { 0xC72144049EB62788ull, "body font buttons 256x83", 256, 83, 98304, BodyButtons },

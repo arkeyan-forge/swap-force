@@ -6,7 +6,6 @@
 #include "game_hooks.h"
 #include "memory.h"
 #include "swapforce.h"
-#include <atomic>
 #include <cstdio>
 #include <string>
 #include <ppc_config.h>
@@ -26,12 +25,6 @@ namespace
 
     const VoiceLanguage* g_voices = nullptr; // nullptr: the game's own (the text language)
     thread_local bool t_inSoundPak = false;
-    std::atomic<uint32_t> g_textLanguage{ 6 }; // the text's IG_CORE_LANGUAGE value, as Language_Get last answered
-}
-
-bool swapforce::TextIsFrench()
-{
-    return g_textLanguage.load(std::memory_order_relaxed) == 8;
 }
 
 bool swapforce::SetVoiceLanguage(std::string_view code)
@@ -52,7 +45,6 @@ PPC_FUNC_IMPL(GAME_IMP(Language_Get));
 PPC_FUNC(GAME_HOOK(Language_Get))
 {
     GAME_IMP(Language_Get)(ctx, base);
-    g_textLanguage.store(ctx.r3.u32, std::memory_order_relaxed);
     if (t_inSoundPak && g_voices != nullptr)
     {
         static bool logged = false;
