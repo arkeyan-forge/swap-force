@@ -65,6 +65,12 @@
 #define GAME_HOOK_Language_SoundPak sub_825F5B48
 #define GAME_HOOK_Movie_Open sub_825A71D0
 
+// The string table's intern (games/swapforce/prompt_text.cpp, art.md "Button pictures"): r3 the table (*0x83403DB0), r4 a
+// C string; returns the shared copy, looked up by content (sub_823EBFF0) or allocated and copied (sub_823EC3B8,
+// memcpy). Every string of the IGZ files (the TSTR records, sub_82433D90) and of the igx text goes through it. Found from
+// the IGZ loader's TSTR case (sub_82459898) by hand.
+#define GAME_HOOK_String_Intern sub_823EC0D8
+
 // Ultrawide and the full-resolution scene (games/swapforce/ultrawide.cpp, docs/runtime/gpu/ultrawide.md "Swap Force"): a
 // render-target pass computes its size in sub_8258EBE8 (an explicit size, its parent's or the display's, times its scales);
 // the scene's chain starts at a pass with an explicit 1040x620 (81 % of 1280x720) and its children, half, quarter and the
