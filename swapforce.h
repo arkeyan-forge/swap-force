@@ -7,4 +7,7 @@ namespace swapforce
 {
     // Voices in another language than the text (language.cpp): "en" or "fr", the two the disc has.
     bool SetVoiceLanguage(std::string_view code);
+
+    // [swapforce] nightmare_from_start (nightmare.cpp): the difficulty menu offers Nightmare before the story is beaten.
+    void SetNightmareFromStart(bool on);
 }

@@ -58,6 +58,12 @@
 // yet; its only caller, the scene's end sub_82515D68, spins on it before D3DDevice_Swap.
 #define GAME_HOOK_SwapWait_Status sub_82F5CB30
 
+// Nightmare difficulty (games/swapforce/nightmare.cpp): (storage) -> whether the save's "nightmare_difficulty_unlocked"
+// property is 1 (a script variable of the slot that the story's end sets through tryUnlockNightmareDifficultyLevel). Its one
+// caller, the difficulty menu's availability check sub_82C12BC0 (difficulty index >= 3 asks it), shows the padlock and "Beat
+// the game to unlock Nightmare difficulty." while it answers 0.
+#define GAME_HOOK_NightmareUnlocked sub_829CC788
+
 // The jump component's stuck-falling check (games/swapforce/fall_check.cpp): (component) -> void, called every frame; it
 // compares the squared distance moved since the last frame (the position at +144..+152 against the object's) with
 // (the config's threshold at +92 x the float at +104 of the component)^2. Found by its reflection names and read in the

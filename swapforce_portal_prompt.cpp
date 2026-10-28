@@ -7,7 +7,7 @@ namespace portalprompt
         if (state == SwapForceStateError)
             return { Kind::TooMany, 0 };
         if ((state == SwapForceStateIdle || state == SwapForceStateDead) && player < 2)
-            return { Kind::Player, int(player) + 1 };
+            return { Kind::Player, int(player) + 1, state == SwapForceStateDead };
         return {};
     }
 }

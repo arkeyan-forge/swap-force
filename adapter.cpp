@@ -69,7 +69,7 @@ namespace
 
     // fullScene: the scene at the frame's size (games/swapforce/ultrawide.cpp: the scene chain's size, its tiling and EDRAM plan).
     const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures, IntroMovies, false,
-        nullptr, {}, GlyphImages, true, { 1280, 720 } };
+        nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr };
 }
 
 const game::Adapter& game::Current() { return g_adapter; }

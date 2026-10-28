@@ -427,3 +427,29 @@ adapter's `ReadPortalPrompt` read three words a frame: the instance, its state (
   `P1: Scratch`, `the game took Scratch (slot 0, 0.2 s after the change)`, state 7, `the prompt is gone`, `closed`,
   `catgryphon.pak` opens and Scratch plays the tutorial.
 - [?] Player 2's prompt, the Dead state and the error screen were not run.
+
+## Nightmare difficulty and "Nightmare from the start" (2026-10-28) [Alchemy] [SwapForce] [V]
+The difficulty menu (a new game's NEW slot, and the pause menu's Options) has four rows, Easy, Medium, Hard and **Nightmare**.
+A new save shows Nightmare with a padlock and "Beat the game to unlock Nightmare difficulty." [V] (shot of the menu).
+- **How the game locks it** (read in the recompiled code, found by the names in guest memory: `tryUnlockNightmareDifficultyLevel_Internal`,
+  a script function the story's end calls, and `nightmare_difficulty_unlocked`, a property of the slot's data): `sub_82C12BC0`
+  answers whether a difficulty row is available: any index under 3 yes, else **`sub_829CC788`**, which reads that property
+  from the profile (`sub_829D48F0`, `sub_823E96C0`) and answers whether it is 1. It has no other caller. The property is
+  written by the story's end only; nothing in the menu writes it.
+- **`[swapforce] nightmare_from_start=1`** (`--nightmare-from-start 1`, `SKY_NIGHTMARE_FROM_START=1`; the launcher's Game tab,
+  Difficulty): `games/swapforce/nightmare.cpp` hooks `sub_829CC788` (`GAME_HOOK_NightmareUnlocked`), calls the original and
+  answers 1 when the option is on. The save is not touched: the property stays what it was, so with the option off the
+  padlock is back at once (the next time the menu asks), and a slot that chose Nightmare keeps playing it (the choice is the
+  slot's own). The log says `[nightmare] offered from the start`, then once per case `[nightmare] the menu asked: the save says
+  locked, the option is on: offered`. The game asks when the Nightmare row is highlighted, not when the menu opens.
+- **Proof** [V]: [`tools/regress/nightmare_menu.sh`](https://github.com/arkeyan-forge/forge/blob/main/tools/regress/nightmare_menu.sh) (about 4 min, real menus, a new
+  save): option off, three Down, the padlock and `the option is off: locked`; option on, the same, the description "Villains
+  wield devastating power. Only for experienced Skylander armies. Major bonus to Loot and XP." and no padlock, then A: the
+  tutorial starts. It runs in `tools/test_all.sh` with Swap Force.
+- **The other two games** [V] (menus run 2026-10-28): Giants' difficulty screen (Story, a new slot) has three choices, shown with a
+  growing silhouette: the first, "Cyclops Crusher (Medium)" (the default) and "Heavy Hitter (Hard)"; Right at Hard stays on
+  Hard (no fourth, no padlock), nothing is locked on a new save, and its disc has no Nightmare text. Spyro's Adventure starts a
+  new game with no difficulty choice, its Options (General, Audio, Controls) hold no difficulty either (General has only "Visiting
+  Nicknames"), and the only "Nightmare" strings of its disc are upgrade names ("Nightmare Huggers", "Nightmare Touch"). So the
+  option exists for Swap Force only; the other runtimes log `<game> has no locked difficulty, ignoring nightmare_from_start`, and the
+  launcher shows the option on Swap Force's page only.
