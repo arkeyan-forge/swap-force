@@ -1,6 +1,6 @@
 # Swap Force's shaders: the disc and the cache
 
-> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-27) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
+> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-28) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
 
 ## On the disc
 
@@ -147,10 +147,52 @@ Skylander menu's clouds and the backdrops look soft. Checked on frame captures (
   then the depth of field and the motion blur soften them. A higher-resolution look needs texture packs
   ([texture_packs.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/texture_packs.md)) or less post-processing (a product choice).
 
-### The lava [?]
-Apart from the green (above), nothing wrong was found in the tutorial's lava: the lava sheets, the heat distortion and
-the sky draw with plausible state and textures. Without a console capture of the same moment, colour or speed
-differences cannot be ruled out.
+### The lava and the crystals flicker (2026-10-28): frame pacing, not a draw [SwapForce] [Alchemy] [V]
+The user's recording (kit 0.6.0, macOS, game window 1392x840): "the lava is broken, the crystal-like things too, the
+picture is epileptic, the lava sparkles at the start". The recording has 44-48 distinct frames a second, so the game ran
+at `fps_limit=60` below 60: each frame was shown 1, 2 or 3 refreshes while the scene moved by the same step from one frame
+to the next (correlation of step and display time 0.0 over 10 s). That judder, on the two fastest scenes of the
+tutorial (the ship flies through the lava canyon, then through a tunnel of cyan shards at ~265 units a frame), is the
+"epileptic" picture. The fix is in the runtime's pacing: at 60 the frames are shown every 2 blanks while they miss their
+blank ([video_vblank.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/xbox360/video_vblank.md#pacing-waitforflippresentinterval-in-the-swap-hook)).
+Headless at the user's settings the present intervals went from median 38.9 ms (std 7.2) to 33.3 ms (std 3.9).
+
+What was checked and found right, frame by frame (`SKY_DUMP_FRAME` with `SKY_DUMP_FRAMES=<n>`, consecutive snapshots at
+30 fps, where each present is one game step):
+- **The canyon** (G-buffer, vertex shader `9183BAD7`, pixel shader `35F4F3BF`, 1024/2048 textures): its wobble is
+  `sin(frequency x time + phase)` with the material time in c3.x, which advances by the measured frame time (one frame
+  behind the present, as the render thread is); c3.y is the time two frames back. Its albedo changes little between
+  frames; the flow overlays (`1A20887C` with `C3EFBD6E` / `614DDFBC`) have static texture matrices.
+- **The lava sheets** (`45500B15`): the scroll is c8.x = time x 0.01, smooth. **The 256x256 ping-pong** (pass 2 of
+  [boot.md](boot.md#the-tutorials-level-frame-the-pass-list-2026-10-27-swapforce-alchemy-v)) is a ripple simulation whose
+  normal map feeds the overlays (texture 5); it is flat in the tutorial (127, 127, 255).
+- **The tunnel and the swirl sky** are skinned meshes (`4292A997`, `E5509D27`, bones from c8 / c17) drawn in the forward
+  pass, after the G-buffer: their bones change smoothly. They have **no motion blur by design**: the velocity the blur
+  reads is packed in pass 6 from the G-buffer, where the sky is 0. So at 30 fps two frames in the tunnel differ by ~45 of
+  255 on average, on the console as here [?] (no console capture).
+- **The motion blur's inputs**: the previous-frame matrices of a frame are exactly the current ones of the frame before.
+- No out-of-order or alternating frames (frame i+2 always further from i than i+1), no 2x2-quad pattern (the ratio of the
+  luma step across quad edges to the step inside a quad is 0.94, as in a normal picture), no excess of per-pixel flicker
+  over the lava (2.4 % of the pixels a frame, the same at 30 and 60 fps).
+- One translation gap found on the way, without a visible effect: [`SetTextureLod`](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/shaders.md).
+
+**At 30 fps** (2026-10-28, after the user said the game was set to 30) [V]: the same places at `--fps-limit 30`, scale 1,
+every present saved (each one a game step of 1/30 s): the canyon and the tunnel draw as above, with no flicker beyond the
+scene's own motion (`c30_lava_zoom.png`, four consecutive canyon frames; `seq_vtx_shards.png`, three consecutive tunnel
+frames). Also checked: the literal constants of the canyon and tunnel vertex shaders (`c253` = (-pi, 1/14, 2 pi, 0) for
+the sine range reduction, `c255.x` = 3 for the bone stride) are in the constant buffer at their draws, as the translated
+code reads them (`g_C(253)`, `g_C(255)`); the post passes' constants follow the full-resolution scene (1280x720: bloom at
+640x360, offsets 1/1280) as they follow 1040x620 with `original_resolution=1`. **The recording cannot come from a game
+at 30**: at `fps_limit=30` Swap Force keeps its interval 2 (`[video] present interval 0x2 seen (fps limit 30)`), so at
+most 30 different pictures a second (presents 33.3 ms apart headless), and the recording has 44-47 (`mpdecimate`), in
+equal steps of about 1/60 s of game time. So the game the user saw ran at 60: the launcher's 30 did not reach it [?]
+(the game reads `fps_limit` only from `launcher.ini`'s `[video]`, which Skylauncher fills from the game's
+`[swapforce.video]` before a launch; the game log's `[settings] ... fps limit N` line says which value it used).
+
+Shots and data (untracked, `private/sflava/`): `seq_vtx_shards.png` (three consecutive tunnel frames), `seq_f60s1_crop.png`
+and `z_seq30_1100.png` (consecutive lava frames), `dump6_alb.png` / `dump6_fin.png` (albedo and final over 4 frames),
+`capt_mb.png` (tunnel frame before and after the motion blur, the packed G-buffer), `runs/pace_before` and
+`runs/pace_after3` (`frames.txt`: the present times before and after).
 
 ## Tests
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints

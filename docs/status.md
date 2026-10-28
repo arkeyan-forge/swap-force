@@ -1,6 +1,6 @@
 # Skylanders: Swap Force (swapforce)
 
-> **Purpose:** which disc Swap Force needs, where the port stands, where to start, and the dated news of the port · **Status:** current (2026-10-27) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
+> **Purpose:** which disc Swap Force needs, where the port stands, where to start, and the dated news of the port · **Status:** current (2026-10-28) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
 
 ## Disc
 | | |
@@ -72,6 +72,12 @@ The user's disc stays outside git (`private/discs/` or the path given on the com
   render targets and colour tables anisotropically: the whole 3D view smeared, the lava and Eruptor turned green. Now
   only textures with mipmaps get it. The passes that remain soft by design (a 1040x620 scene stretched to 1280x720, FXAA,
   depth of field, motion blur): [shaders.md](shaders.md#the-post-processing-passes-and-the-blur-swapforce-alchemy).
+- **The flickering lava and crystals at 60 fps fixed** (2026-10-28) [V] (headless; on the player's display [?]): the user's
+  "epileptic" tutorial was judder of the experimental 60 fps at ~45 fps (equal scene steps shown for 1 or 2 refreshes), on
+  the two fastest scenes (the lava canyon, the crystal tunnel); no draw was wrong. At 60 the runtime now shows frames every
+  2 blanks while they miss their blank (steady 30), and 60 again once they fit
+  ([shaders.md](shaders.md#the-lava-and-the-crystals-flicker-2026-10-28-frame-pacing-not-a-draw-swapforce-alchemy-v),
+  [video_vblank.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/xbox360/video_vblank.md#pacing-waitforflippresentinterval-in-the-swap-hook)).
 - **The 3D at full resolution by default** (2026-10-27) [V]: the scene is 1280x720 (the window's shape when wider)
   instead of 1040x620 stretched; `[swapforce.video] original_resolution=1` (`--original-resolution 1`) keeps the
   console's. Three hooks: the chain's size, no predicated tiling, the console's EDRAM plan
