@@ -1,5 +1,5 @@
 // Swap Force's save tasks: a race in the game's own code that stops it at the save slots on a loaded machine
-// (games/swapforce/docs/status.md, "The stop at the save slots") [SwapForce].
+// (games/swapforce/docs/history.md, "The stop at the save slots") [SwapForce].
 //
 // The storage object runs each task (load the slots, save the options, load or save a game) on an igThread, then polls
 // for the task's end every frame (SaveTask_Poll: busy, and the done byte set -> it joins the thread and clears busy). The

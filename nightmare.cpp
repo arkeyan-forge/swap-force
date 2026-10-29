@@ -1,4 +1,4 @@
-// Swap Force's "Nightmare from the start" (games/swapforce/docs/status.md, "Nightmare difficulty") [SwapForce].
+// Swap Force's "Nightmare from the start" (games/swapforce/docs/history.md, "Nightmare difficulty") [SwapForce].
 //
 // The difficulty menu (sub_82C12BC0, asked for each of its four rows) offers Easy, Medium and Hard always and Nightmare
 // when the slot's property "nightmare_difficulty_unlocked" is 1; the story's end sets it (the script function

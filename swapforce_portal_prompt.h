@@ -6,7 +6,7 @@
 // Swap Force's "place your Skylander on the Portal of Power" prompt. Everything around it (asking for a figure, bringing
 // one in, the "too many" screens) is run by one engine object, the CMagicMoment singleton (public facts:
 // tsapZ/SwapForceRecomp src/game/magic_moment_watch.cpp, MIT; the addresses were checked against this disc's code and a
-// run, games/swapforce/docs/status.md, "Figures and portal"):
+// run, games/swapforce/docs/history.md, "Figures and the portal"):
 // - 0x83131BE0 holds the instance pointer (set by sub_82858F70, cleared by sub_82858FC0), 0 when there is none;
 // - +0x20 the state (EMagicMomentState, names at 0x820921C4): 0 Inactive, 3 the zoom out to the portal, 5 Idle (the
 //   prompt is up, waiting for a figure), 7 IdleOutro (a figure came), 13 Dead (a player's Skylander died, the game waits
