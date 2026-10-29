@@ -1,6 +1,6 @@
 # Swap Force's shaders: the disc and the cache
 
-> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-28) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
+> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-29) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
 
 ## On the disc
 
@@ -56,7 +56,7 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
   the difficulty) and `movie_shaders=7` (the run ends once 7 new shaders are dumped, at the latest after 120 s), so
   the installed game has **1081** shaders. Until then the pass ran with `SKY_PORTAL=none` and stopped 8 s after the
   first new shader (1080 shaders): with no portal, Swap Force stops after the title on its own **"PORTAL
-  DISCONNECTED"** screen (two `SL_LOAD_SLOTS Thread` lines, then nothing; [status.md](status.md), "Open problems"),
+  DISCONNECTED"** screen (two `SL_LOAD_SLOTS Thread` lines, then nothing; [history.md](history.md), "Moved from the status page"),
   so presses alone could not reach the loading screen. Headless with the empty emulated portal, the installed game
   dumps `811CCF44C1A9FC42.ps` ~34 s in at a load of 4. If a slow machine does not get there in 120 s, the install
   still ends with the shaders found (a `warning: 7 expected` line) and only that screen's draws are skipped.
@@ -148,6 +148,9 @@ Skylander menu's clouds and the backdrops look soft. Checked on frame captures (
   ([texture_packs.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/texture_packs.md)) or less post-processing (a product choice).
 
 ### The lava and the crystals flicker (2026-10-28): frame pacing, not a draw [SwapForce] [Alchemy] [V]
+**Corrected 2026-10-29:** the pacing made it worse, but the shimmer itself is a draw state, the missing polygon offset
+([below](#the-lava-shimmers-cause-the-polygon-offset-2026-10-29-swapforce-alchemy-xbox-v)). Every run compared here
+lacked it, so "no excess of per-pixel flicker" and "at 30 fps no flicker beyond the scene's own motion" were wrong.
 The user's recording (kit 0.6.0, macOS, game window 1392x840): "the lava is broken, the crystal-like things too, the
 picture is epileptic, the lava sparkles at the start". The recording has 44-48 distinct frames a second, so the game ran
 at `fps_limit=60` below 60: each frame was shown 1, 2 or 3 refreshes while the scene moved by the same step from one frame
@@ -193,6 +196,76 @@ Shots and data (untracked, `private/sflava/`): `seq_vtx_shards.png` (three conse
 and `z_seq30_1100.png` (consecutive lava frames), `dump6_alb.png` / `dump6_fin.png` (albedo and final over 4 frames),
 `capt_mb.png` (tunnel frame before and after the motion blur, the packed G-buffer), `runs/pace_before` and
 `runs/pace_after3` (`frames.txt`: the present times before and after).
+
+### The lava shimmer's cause: the polygon offset (2026-10-29) [SwapForce] [Alchemy] [Xbox] [V]
+**The owner's report** (2026-10-28, macOS, scale 2, a steady 59-60 FPS, and the same at 30): the lava still glitches
+and shimmers. **His recording** (95 s, the game window at 120 frames a second, the tutorial's canyon) shows, frame by
+frame, patches of the canyon walls (a yellow lava flow, a dark rock band) drawn on one frame and missing on the next,
+while the frames before and after agree: a one-frame "pop" of whole patches, not single pixels, not motion
+(`owner_clip_24s_one_frame_pop.png`: frames 24 s + k-1, k, k+1 and the 8x8 blocks out of line with both neighbours).
+
+**The cause.** The canyon walls (G-buffer pass, vertex shader `9183BAD7`) get **decals** drawn over them into the same
+G-buffer: vertex shader `1A20887C` with pixel shaders `FFB558E4` (8 draws a frame), `614DDFBC` (3), `C3EFBD6E` (2), and
+`001E4E4F` / `F4DF48F4` in the crystal tunnel. They test depth with GEQUAL (reversed depth, no depth write) and ask for
+a **polygon offset**: `PA_SU_SC_MODE_CNTL` = `0x00019802` (bits 11 and 12: front and back offset on),
+`PA_SU_POLY_OFFSET_FRONT_SCALE` / `BACK_SCALE` = 16 or 48, offset 0. The runtime never translated those registers, so
+the decals depth-fought the wall under them: which patch won the test changed with the camera and the walls' wobble,
+from one frame to the next. Seen with `SKY_DUMP_FRAME` (the `[dump]` lines now print `vs`, `ps`, `sumode` and the four
+`polyoffset` registers; no other draw of the frame enables the offset).
+
+**The fix** (runtime, Xbox-generic, `PrepareDraw` in `runtime/d3d/render.cpp`): the offset becomes the host pipeline's
+depth bias, with Xenia's conversion (BSD): slope scale / 16 (the guest counts 1/16 subpixels) times the resolution scale
+(the slope is per guest pixel), the constant offset x 2^19 (20e4 depth) or 2^23 (24-bit) rounded away from zero (0 in
+every Swap Force draw seen, so its unit is [?]); front values for front faces and points or lines, back values for back
+faces, front first when both apply. `SKY_POLY_OFFSET=0` turns it off ([debugging.md](https://github.com/arkeyan-forge/forge/blob/main/docs/porting/debugging.md)).
+
+**Proof** (headless, the tutorial recipe, 40 consecutive presents from 50 s (canyon) or 110 s (tunnel);
+`analyze.py shimmer`, below):
+- **A paused, still scene** with the offset toggled every other frame: frames of the same parity are identical, frames
+  of the other parity differ by whole decal patches on the walls (`paused_offset_toggled_crop.png`, `_diff.png`).
+- **The flip map**: per pixel, the part of the luma that flips with the frame's parity (a lock-in at the Nyquist
+  frequency: smooth motion averages out, a patch drawn on one frame and not the next stays); the share of pixels that
+  flip by more than 16 levels on the walls (canyon: the upper 45 % of the frame; tunnel: the whole frame), and the
+  one-frame pops (8x8 blocks out of line with both neighbours by more than 12 levels, whole frame):
+
+  | Run | flip, without the offset | flip, with it | pops, without | pops, with |
+  |---|---|---|---|---|
+  | canyon, 60 FPS, scale 1 | 2.85 % | 0.00 % | 4.6 % | 0.6 % |
+  | canyon, 60 FPS, scale 2 | 1.70 % | 0.05 % | 5.2 % | 1.9 % |
+  | crystal tunnel, 60 FPS, scale 2 | 2.03 % | 0.04 % | 8.0 % | 2.1 % |
+  | crystal tunnel, 60 FPS, scale 1 | | 0.00 % | | 1.3 % |
+  | canyon, 30 FPS, scale 1 | 3.31 % | 0.29 % | 5.5 % | 2.8 % |
+  | canyon, 30 FPS, scale 2 | 1.95 % | 0.74 % | 5.9 % | 3.7 % |
+  | canyon, 30 FPS, scale 2, anisotropy 4 (the harness's run) | 3.24 % | 0.49 %, 0.59 %, 0.81 % | | |
+  | crystal tunnel, 30 FPS, scale 1 | 1.77 % | 0.54 % | 7.9 % | 3.9 % |
+  | crystal tunnel, 30 FPS, scale 2 | | 1.09 % | | 6.5 % |
+
+  At 60 the snapshots use a 640x360 window and `SKY_CADENCE=0` (a 1280x720 readback of every present holds a 60 FPS run
+  at 30 while it lasts; at 30 the window is 1280x720); what is left at 30 is the scene's own motion, twice the step: in
+the tunnel at scale 2 (1.09 %) a fine pattern along the fast walls' texture edges, no patch
+(`lockin_tunnel_30fps_scale2_after.png`).
+  Pictures (frame and flip map, before on top): `lockin_canyon_60fps_scale2_before_after.png`,
+  `lockin_tunnel_60fps_scale2_before_after.png`, and the `_30fps_` ones.
+
+**The other leads, ruled out** with the same measure (whole frame), offset on, canyon, scale 1, 30 FPS: anisotropy 16
+(0.18 % flip, 2.7 % pops) and the mip filter forced to linear (0.21 %, 2.8 %) change nothing against the baseline
+(0.16 %, 2.75 %); the
+canyon, decal, lava-sheet and motion-blur shaders use no derivative, gradient or LOD instruction; an animation constant
+late on alternate frames, or a render target read while written, would flip with the parity and the flip map is flat
+with the offset on. `SetTextureLod` was measured before ([shaders.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/shaders.md)).
+
+**Elsewhere in the game**: the runtime logs the first draw that asks for an offset (`[render] polygon offset first
+used: ...`). In the harness's runs (2026-10-29) Swap Force's `barrens/brn2` draws the same decals (`614DDFBC`, slope
+16), so the fix covers the levels after the tutorial too; SSA (`level_027`) and Giants (Chapter 1, a tour level, the
+save and coin runs) never ask for it. The zone tour would list every zone that does [?].
+
+**On the recording's rate**: from 16 s on, the owner's clip holds frames for 2 and 4 refreshes of 120 Hz in turn (40
+distinct frames a second, the even 40 FPS below 60 of
+[video_vblank.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/xbox360/video_vblank.md#pacing-waitforflippresentinterval-in-the-swap-hook)); the
+patches pop at either rate.
+
+Shots (untracked, `private/lavafix/shots/`): the pictures named above. The check: `tools/test_all.sh` (Swap Force's
+tutorial run, "the lava canyon does not shimmer"), [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md).
 
 ## Tests
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints

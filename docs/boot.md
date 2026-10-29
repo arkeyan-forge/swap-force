@@ -441,6 +441,6 @@ base, so the game's pooled records match the 1040x620 ones it was built for. Sho
   right (a panel fading in) [?]. The portal's "magic moment" showed Eruptor flat blue in one run (`cap4_s3.png`); the
   same moment later shows the blue portal effect (`cap7_s3.png`); not compared with a console [?].
 - Unnormalized 1D, 3D and cube fetches are not handled (none seen).
-- No glyph textures (section above); ultrawide and the portal prompt reader are in ([status.md](status.md), "Figures and the portal").
+- No glyph textures (section above); ultrawide and the portal prompt reader are in ([history.md](history.md), "Figures and the portal").
 - The tutorial asks for `\models\levelassets\tutorial\*.hkx` loose files that are not on the disc (`0xC0000034`); the
   game goes on (they look like optional overrides) [?].
