@@ -27,20 +27,22 @@ PPC_FUNC(GAME_HOOK(Ultrawide_ScenePass))
     {
         static std::atomic<bool> logged;
         if (!logged.exchange(true))
-            fprintf(stderr, "[scene] full resolution: scene %ux%u -> %ux%u (original_resolution=1 keeps the game's)\n", ultrawide::SceneWidth16x9,
-                ultrawide::SceneHeight16x9, ultrawide::SceneWidth(), ultrawide::SceneHeight());
+            fprintf(stderr, "[scene] full resolution: scene %ux%u -> %ux%u (original_resolution=1 keeps the game's)\n",
+                ultrawide::SceneWidth16x9, ultrawide::SceneHeight16x9, ultrawide::SceneWidth(),
+                ultrawide::SceneHeight());
         g_memory.Write<uint32_t>(pass + 32, ultrawide::SceneWidth());
         g_memory.Write<uint32_t>(pass + 36, ultrawide::SceneHeight());
     }
     GAME_IMP(Ultrawide_ScenePass)(ctx, base);
     if (fullResolution || !ultrawide::Active() || pass < 0x10000)
         return;
-    if (g_memory.Read<uint32_t>(pass + 88) != ultrawide::SceneWidth16x9 || g_memory.Read<uint32_t>(pass + 92) != ultrawide::SceneHeight16x9)
+    if (g_memory.Read<uint32_t>(pass + 88) != ultrawide::SceneWidth16x9 ||
+        g_memory.Read<uint32_t>(pass + 92) != ultrawide::SceneHeight16x9)
         return;
     static std::atomic<bool> logged;
     if (!logged.exchange(true))
-        fprintf(stderr, "[ultrawide] scene %ux%u -> %ux%u\n", ultrawide::SceneWidth16x9, ultrawide::SceneHeight16x9, ultrawide::SceneWidth(),
-            ultrawide::SceneHeight());
+        fprintf(stderr, "[ultrawide] scene %ux%u -> %ux%u\n", ultrawide::SceneWidth16x9, ultrawide::SceneHeight16x9,
+            ultrawide::SceneWidth(), ultrawide::SceneHeight());
     g_memory.Write<uint32_t>(pass + 88, ultrawide::SceneWidth());
     g_memory.Write<uint32_t>(pass + 92, ultrawide::SceneHeight());
 }
@@ -58,7 +60,8 @@ PPC_FUNC(GAME_HOOK(Scene_Tiles))
 {
     const uint32_t set = ctx.r3.u32;
     GAME_IMP(Scene_Tiles)(ctx, base);
-    if (ultrawide::Scene16x9Width() == ultrawide::SceneWidth16x9 || set < 0x10000 || g_memory.Read<uint32_t>(set + 40) <= 1)
+    if (ultrawide::Scene16x9Width() == ultrawide::SceneWidth16x9 || set < 0x10000 ||
+        g_memory.Read<uint32_t>(set + 40) <= 1)
         return;
     const uint32_t colors = g_memory.Read<uint32_t>(set + 32), depth = g_memory.Read<uint32_t>(set + 36);
     const uint32_t first = colors != 0 ? g_memory.Read<uint32_t>(set) : depth;
@@ -67,8 +70,9 @@ PPC_FUNC(GAME_HOOK(Scene_Tiles))
     const uint32_t width = g_memory.Read<uint32_t>(first + 16), height = g_memory.Read<uint32_t>(first + 20);
     static std::atomic<bool> logged;
     if (!logged.exchange(true))
-        fprintf(stderr, "[scene] %ux%u targets kept in one piece (the game split them into %u tiles for the console's EDRAM)\n", width, height,
-            g_memory.Read<uint32_t>(set + 40));
+        fprintf(stderr,
+            "[scene] %ux%u targets kept in one piece (the game split them into %u tiles for the console's EDRAM)\n",
+            width, height, g_memory.Read<uint32_t>(set + 40));
     g_memory.Write<uint32_t>(set + 40, 1);
     g_memory.Write<uint32_t>(set + 44, 0);
     g_memory.Write<uint32_t>(set + 48, 0);
@@ -110,9 +114,11 @@ PPC_FUNC(GAME_HOOK(Scene_SurfaceTiles))
     const uint32_t original = ultrawide::SceneWidth16x9, originalHeight = ultrawide::SceneHeight16x9;
     // A size of the chain: both sides scale exactly from the scene to the original (1280 -> 1040 is 13/16, 720 -> 620 is
     // 31/36: the chain's halves, quarters and tenths do; the fixed 256x256 or 64x2 targets do not).
-    const bool planned = uint32_t(ctx.lr) == PlannerReturn || (surface >= 0x10000 && g_memory.Read<uint8_t>(surface + 125) != 0);
+    const bool planned =
+        uint32_t(ctx.lr) == PlannerReturn || (surface >= 0x10000 && g_memory.Read<uint8_t>(surface + 125) != 0);
     const bool chain = ultrawide::Scene16x9Width() != original && planned && width != 0 && height != 0 &&
-        width <= full && height <= fullHeight && width * original % full == 0 && height * originalHeight % fullHeight == 0;
+                       width <= full && height <= fullHeight && width * original % full == 0 &&
+                       height * originalHeight % fullHeight == 0;
     if (!chain)
     {
         GAME_IMP(Scene_SurfaceTiles)(ctx, base);
@@ -133,7 +139,8 @@ PPC_FUNC_IMPL(GAME_IMP(Ultrawide_WorldCamera));
 // and the HUD cameras read the same field and need the 16:9 one). Hor+, as SSA's and Giants': the vertical field of view stays.
 PPC_FUNC(GAME_HOOK(Ultrawide_WorldCamera))
 {
-    const uint32_t viewport = ultrawide::Active() && ctx.r3.u32 >= 0x10000 ? g_memory.Read<uint32_t>(ctx.r3.u32 + 44) : 0;
+    const uint32_t viewport =
+        ultrawide::Active() && ctx.r3.u32 >= 0x10000 ? g_memory.Read<uint32_t>(ctx.r3.u32 + 44) : 0;
     if (viewport < 0x10000)
     {
         GAME_IMP(Ultrawide_WorldCamera)(ctx, base);

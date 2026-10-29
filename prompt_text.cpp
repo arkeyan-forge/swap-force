@@ -67,7 +67,8 @@ namespace
             return 0;
         uint32_t entries = g_memory.Read<uint32_t>(list + 0x14);
         uint32_t first = g_memory.Read<uint32_t>(entries), a = g_memory.Read<uint32_t>(entries + 12 * 4);
-        if (first == 0 || a == 0 || g_memory.Read<uint16_t>(first + 0x08) != 0 || g_memory.Read<uint16_t>(a + 0x08) != 0x298)
+        if (first == 0 || a == 0 || g_memory.Read<uint16_t>(first + 0x08) != 0 ||
+            g_memory.Read<uint16_t>(a + 0x08) != 0x298)
             return 0;
         std::lock_guard lock(mutex);
         uint32_t& metrics = made[font];
@@ -96,7 +97,8 @@ PPC_FUNC(GAME_HOOK(String_Intern))
         if (NamesStart(view))
         {
             std::string replaced = std::string(view.substr(0, view.size() - Word.size() + 1)) + char(StartCharacter);
-            fprintf(stderr, "[glyphs] text \"%s\": START shown as the Start button's picture\n", std::string(view).c_str());
+            fprintf(
+                stderr, "[glyphs] text \"%s\": START shown as the Start button's picture\n", std::string(view).c_str());
             ctx.r4.u64 = GuestText(replaced);
         }
     }

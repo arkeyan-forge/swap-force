@@ -19,10 +19,14 @@ PPC_FUNC_IMPL(GAME_IMP(SwapWait_Status));
 // (device, out): out[0] = 0, out[1] = swaps issued, out[2] = swaps issued - swaps shown.
 PPC_FUNC(GAME_HOOK(SwapWait_Status))
 {
-    static const bool wait = [] { const char* v = skyenv::Get("SKY_SWAP_WAIT"); return v == nullptr || v[0] != '0'; }();
+    static const bool wait = [] {
+        const char* v = skyenv::Get("SKY_SWAP_WAIT");
+        return v == nullptr || v[0] != '0';
+    }();
     uint32_t device = ctx.r3.u32;
     const uint64_t handled = InterruptsHandled(); // before the check: one handled after it ends the wait at once
-    if (wait && g_memory.Read<uint32_t>(device + game::SwapsIssuedOffset) != g_memory.Read<uint32_t>(device + game::SwapsShownOffset))
+    if (wait && g_memory.Read<uint32_t>(device + game::SwapsIssuedOffset) !=
+                    g_memory.Read<uint32_t>(device + game::SwapsShownOffset))
         WaitForInterruptHandled(handled);
     GAME_IMP(SwapWait_Status)(ctx, base);
 }

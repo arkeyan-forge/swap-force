@@ -29,7 +29,8 @@ namespace
         if (PortalLogEnabled() && (state != lastState || player != lastPlayer))
         {
             uint32_t reason = state != 0 ? g_memory.Read<uint32_t>(instance + SwapForceReasonOffset) : 0;
-            fprintf(stderr, "[toybox] portal prompt: magic moment state %u, player %d, reason %u\n", state, int32_t(player), reason);
+            fprintf(stderr, "[toybox] portal prompt: magic moment state %u, player %d, reason %u\n", state,
+                int32_t(player), reason);
         }
         lastState = state;
         lastPlayer = player;
@@ -45,17 +46,31 @@ namespace
     // pictures (keyhole, bottle cap, "!") that stay, and an empty part where we add the Start button (every style).
     using glyphs::Cell;
     using glyphs::Glyph;
-    constexpr Cell BodyButtons[] = { // 256x83
-        { Glyph::A, 5, 1, 42, 39 }, { Glyph::Y, 47, 1, 85, 39 }, { Glyph::X, 91, 1, 129, 39 },
-        { Glyph::LeftBumper, 138, 8, 201, 35 }, { Glyph::LeftTrigger, 208, 1, 245, 39 }, { Glyph::RightTrigger, 4, 42, 41, 80 },
-        { Glyph::RightBumper, 47, 49, 109, 76 }, { Glyph::LeftStickIcon, 117, 43, 154, 80 },
-        { Glyph::RightStickIcon, 164, 43, 201, 80 }, { Glyph::B, 206, 42, 244, 80 },
+    constexpr Cell BodyButtons[] = {
+        // 256x83
+        { Glyph::A, 5, 1, 42, 39 },
+        { Glyph::Y, 47, 1, 85, 39 },
+        { Glyph::X, 91, 1, 129, 39 },
+        { Glyph::LeftBumper, 138, 8, 201, 35 },
+        { Glyph::LeftTrigger, 208, 1, 245, 39 },
+        { Glyph::RightTrigger, 4, 42, 41, 80 },
+        { Glyph::RightBumper, 47, 49, 109, 76 },
+        { Glyph::LeftStickIcon, 117, 43, 154, 80 },
+        { Glyph::RightStickIcon, 164, 43, 201, 80 },
+        { Glyph::B, 206, 42, 244, 80 },
     };
-    constexpr Cell InfoButtons[] = { // 256x168
-        { Glyph::A, 3, 7, 45, 49 }, { Glyph::B, 51, 6, 92, 49 }, { Glyph::Y, 97, 7, 139, 49 }, { Glyph::X, 144, 7, 186, 49 },
-        { Glyph::LeftTrigger, 82, 58, 122, 110 }, { Glyph::RightTrigger, 132, 58, 174, 110 },
-        { Glyph::LeftBumper, 5, 71, 74, 101 }, { Glyph::RightBumper, 182, 71, 250, 101 },
-        { Glyph::LeftStickIcon, 144, 117, 188, 160 }, { Glyph::RightStickIcon, 201, 117, 245, 160 },
+    constexpr Cell InfoButtons[] = {
+        // 256x168
+        { Glyph::A, 3, 7, 45, 49 },
+        { Glyph::B, 51, 6, 92, 49 },
+        { Glyph::Y, 97, 7, 139, 49 },
+        { Glyph::X, 144, 7, 186, 49 },
+        { Glyph::LeftTrigger, 82, 58, 122, 110 },
+        { Glyph::RightTrigger, 132, 58, 174, 110 },
+        { Glyph::LeftBumper, 5, 71, 74, 101 },
+        { Glyph::RightBumper, 182, 71, 250, 101 },
+        { Glyph::LeftStickIcon, 144, 117, 188, 160 },
+        { Glyph::RightStickIcon, 201, 117, 245, 160 },
         { Glyph::Start, 202, 7, 244, 49 }, // ours: an empty part of the image, the title's Start (prompt_text.cpp)
     };
     constexpr glyphs::MemoryImage GlyphImages[] = {
@@ -68,8 +83,8 @@ namespace
     constexpr glyphs::Texture GlyphTextures[] = { { 0x0758AAD79A30A2C8ull, "turbo_a 128", Glyph::A, {}, true } };
 
     // fullScene: the scene at the frame's size (games/swapforce/ultrawide.cpp: the scene chain's size, its tiling and EDRAM plan).
-    const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures, IntroMovies, false,
-        nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr };
+    const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures,
+        IntroMovies, false, nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr };
 }
 
 const game::Adapter& game::Current() { return g_adapter; }

@@ -35,8 +35,8 @@ PPC_FUNC(GAME_HOOK(NightmareUnlocked))
     if ((logged & (1 << kind)) == 0)
     {
         logged |= 1 << kind;
-        fprintf(stderr, "[nightmare] the menu asked: the save says %s, the option is %s: %s\n", saved ? "unlocked" : "locked",
-            g_fromStart ? "on" : "off", offered ? "offered" : "locked");
+        fprintf(stderr, "[nightmare] the menu asked: the save says %s, the option is %s: %s\n",
+            saved ? "unlocked" : "locked", g_fromStart ? "on" : "off", offered ? "offered" : "locked");
     }
     ctx.r3.u64 = offered ? 1 : 0;
 }

@@ -11,16 +11,19 @@
 // functions instead), no BeginVertices (it exists, sub_82F64CF8, shape 1.00 against SSA's, but only D3D's own Swap
 // helper sub_82F5C4B0 calls it).
 #define GAME_HOOK_D3DDevice_NextRingSegment sub_82F58760 // same code as Giants' sub_823D0DB8 (asm side by side)
-#define GAME_HOOK_D3DDevice_KickOff sub_82F59840         // call graph from VdInitializeRingBuffer's caller (SSA symbols)
-#define GAME_HOOK_D3DDevice_BlockOnFence sub_82F58460    // call graph (SSA symbols); takes one more argument (r7) than Giants'
-#define GAME_HOOK_D3DDevice_InsertCallback sub_82F58EF0  // shape 1.00 against Giants', same callees
-#define GAME_HOOK_D3DDevice_DrawVertices sub_82F651B8    // mapped callees, same size 0x418
-#define GAME_HOOK_D3DDevice_DrawIndexedVertices sub_82F655D0 // same size 0x478; base vertex back in r5 (VGT_INDX_OFFSET)
-#define GAME_HOOK_D3DDevice_Resolve sub_82F64AB0         // the public Resolve: SSA's arguments, forwarded to the worker sub_82F63958
-#define GAME_HOOK_D3DDevice_ClearF_Worker sub_82F626B0   // shape 1.00 against Giants' and SSA's, same size 0x680
-#define GAME_HOOK_D3DDevice_Swap sub_82F5D018            // only caller of VdSwap
-#define GAME_HOOK_D3DVertexShader_Init sub_82F527F8      // identical to Giants' sub_823DC7E8
-#define GAME_HOOK_D3DPixelShader_Init sub_82F51A10       // identical to Giants' sub_823DC5F0
+#define GAME_HOOK_D3DDevice_KickOff sub_82F59840 // call graph from VdInitializeRingBuffer's caller (SSA symbols)
+#define GAME_HOOK_D3DDevice_BlockOnFence                                                                               \
+    sub_82F58460 // call graph (SSA symbols); takes one more argument (r7) than Giants'
+#define GAME_HOOK_D3DDevice_InsertCallback sub_82F58EF0 // shape 1.00 against Giants', same callees
+#define GAME_HOOK_D3DDevice_DrawVertices sub_82F651B8 // mapped callees, same size 0x418
+#define GAME_HOOK_D3DDevice_DrawIndexedVertices                                                                        \
+    sub_82F655D0 // same size 0x478; base vertex back in r5 (VGT_INDX_OFFSET)
+#define GAME_HOOK_D3DDevice_Resolve                                                                                    \
+    sub_82F64AB0 // the public Resolve: SSA's arguments, forwarded to the worker sub_82F63958
+#define GAME_HOOK_D3DDevice_ClearF_Worker sub_82F626B0 // shape 1.00 against Giants' and SSA's, same size 0x680
+#define GAME_HOOK_D3DDevice_Swap sub_82F5D018 // only caller of VdSwap
+#define GAME_HOOK_D3DVertexShader_Init sub_82F527F8 // identical to Giants' sub_823DC7E8
+#define GAME_HOOK_D3DPixelShader_Init sub_82F51A10 // identical to Giants' sub_823DC5F0
 
 // XMA (runtime/kernel/xma.cpp): the same two engines as SSA and Giants (shape similarity 1.00 each). Unlike Giants, engine
 // 2 has its own init again (sub_82F9FA20 reads 0x7FEA1800 like engine 1's; called from the voice set-up sub_8268B9F0,
@@ -117,9 +120,9 @@ namespace game
     // D3D: XDK 2.0.21250 (D3D9). The device layout is Giants' (XDK 21076): every offset the runtime reads was checked in
     // Swap Force's own setters and draws (games/swapforce/docs/boot.md, "Direct3D").
     constexpr uint32_t DeviceVertexDeclaration = 0x2FD0; // SetVertexDeclaration sub_82F51E68: stw r4,0x2FD0(r3)
-    constexpr bool DrawIndexedBaseVertex = true;         // (device, primitive, base vertex, start, count), as SSA
+    constexpr bool DrawIndexedBaseVertex = true; // (device, primitive, base vertex, start, count), as SSA
     constexpr bool ExpandTiledTargets = true;
-    constexpr bool ResolveHasLevel = true;               // the public Resolve has SSA's (.., level, slice, color) again
+    constexpr bool ResolveHasLevel = true; // the public Resolve has SSA's (.., level, slice, color) again
     constexpr uint32_t DeviceStateShift = 0x80;
     constexpr uint32_t LanguageIndex = 0;
     constexpr uint32_t LanguageCodes = 0;
@@ -152,7 +155,8 @@ namespace game
     // has its busy byte at +185 and its igThread at +188 (that thread's "running" byte at +16, set before the thread is
     // resumed and cleared by the thread's trampoline sub_823F3B70 after the worker returns); every worker sets the done
     // byte as its last store (sub_829CAA90 ...).
-    constexpr uint32_t FallCheckScaleOffset = 104; // the float multiplying the stuck-falling threshold in a jump component
+    constexpr uint32_t FallCheckScaleOffset =
+        104; // the float multiplying the stuck-falling threshold in a jump component
     constexpr uint32_t SaveTaskDone = 0x8320ABC1;
     constexpr uint32_t SaveTaskBusyOffset = 185, SaveTaskThreadOffset = 188, ThreadRunningOffset = 16;
     // The D3D device's swap counts (games/swapforce/swap_wait.cpp): issued (D3DDevice_Swap) and shown (the vertical
