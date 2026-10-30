@@ -135,6 +135,8 @@ namespace game
     constexpr uint32_t UltrawideCompositeVertices = 6;
     constexpr int UltrawideCompositeSlot = 0;
     constexpr bool UltrawideCompositeVpos = false;
+    // The post pass whose constants and fetch offsets give its kernel in guest pixels: at scale N, in host pixels.
+    constexpr uint64_t HostKernelPixelShader = 0x123B15C5DE8896D4ull; // FXAA 3.11 (games/swapforce/docs/shaders.md)
     constexpr std::string_view FirstZone = "tutorial\\tutorial_a\\tutorial_a"; // a new game's first zone (SKY_LEVEL)
     // The engine's name table (sub_8294EA00 turns a name handle into its string, sub_82954BA0 returns the table, sub_82954080
     // clears it): a u32 generation, 32768 u32 string offsets, at +0x20004 the u32 end of the strings, at +0x20008 the

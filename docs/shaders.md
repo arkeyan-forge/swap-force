@@ -1,6 +1,6 @@
 # Swap Force's shaders: the disc and the cache
 
-> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-29) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
+> **Purpose:** where Swap Force's shaders are on the disc and how the kit builds the cache · **Status:** current (2026-10-30) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
 
 ## On the disc
 
@@ -266,6 +266,72 @@ patches pop at either rate.
 
 Shots (untracked, `private/lavafix/shots/`): the pictures named above. The check: `tools/test_all.sh` (Swap Force's
 tutorial run, "the lava canyon does not shimmer"), [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md).
+
+### The lava's posterized gradients (2026-10-30) [SwapForce] [SSA] [Xbox] [V]
+**The owner's report** (0.6.1, the first level): the lava textures look wrong, a kind of blur. No clip; reproduced headless.
+The picture: hard contours and flat areas in the lava's gradients, like a poster, at scale 2 only.
+
+**The cause.** The tone map reads a colour table the game renders in the frame (pixel shader `7EE359C5`, a 256x16 target,
+16 x 16 x 16 entries; two ramps come the same way, `F2BA0933`, 64x1 and 64x2). `TargetFor` scaled every target, so at
+scale 2 the table was 512x32 with each entry doubled (the 2x2 box of the dump equals the scale 1 table exactly). A bilinear
+lookup between doubled entries is flat for half of each step and twice as steep for the other half: the tone map's
+output piled up on one level every 18.
+
+**The four cases** (tutorial, 3 frames each, `private/runs/lava_{s1f30,s2f30,s1f60,s2f60}`; load 15-75 from the other
+lanes, so the frame times are not comparable). Slope = the spread of the tone map's output-against-input curve, from the same
+frame's resolves before and after it; spike = the worst bin of the output histogram against its neighbours:
+
+| Case | Slope std | Spike | Shows it |
+|---|---|---|---|
+| scale 1, 30 FPS | 0.11-0.30 | x1.2 | no |
+| scale 1, 60 FPS | 0.09-0.18 | x1.2-1.3 | no |
+| scale 2, 30 FPS | 0.78-0.89 | x26-27 | **yes** |
+| scale 2, 60 FPS | 0.76-0.77 | x22-24 | **yes** |
+| scale 2, 60 FPS, the table at guest size | 0.08 | x1.2 | no |
+
+**The bisect by pass** (`SKY_SKIP_PS`, the build before the fix, scale 2, 60 FPS, final frames, `analyze.py banding`):
+nothing removed x39; lava sheets x27; heat x16; depth of field x15; FXAA x3.6; **motion blur and tone map x1.3**. Only the
+tone map's removal clears it, and it is the pass that reads the table.
+
+**The fix** (runtime, Xbox-generic): a target with a side of 32 guest pixels or less is a table and keeps its guest size
+(`IsTableSize`, `TargetScale`; viewport, scissor, resolve and clear rectangles follow the target, `DrawDesc::resolutionScale`
+replaces the global scale for vPos and point sizes, and a resolve is flagged scaled only if its host size differs). No picture
+target is that small in the three games (the smallest side seen is 72). A draw into a table that read a scaled resolve
+with fetch offsets or unnormalized coordinates would get scale 1 for them: none exists in the frames checked [?]
+for other levels.
+
+**SSA has the same bug, milder**: its 1024x32 grade table (pixel shader `EAE0BF4C`, 32 steps, so half as tall a stair) was
+2048x64, doubled: x3.73, fixed x1.55 at `level_027`. **Giants** (`level_203_the_machine`, scale 2): no table target, x1.18.
+
+**FXAA at scale 2** (lead from Core of Light's notes, verified): the game sets c0 and c1 from 1280x720 whatever the scale
+(c0 = +-0.5/size, c1 = (4, 4, -2, -2)/size),
+and `tfetch2D` scales the corner taps' fetch offsets (+-0.5 guest texel) for resolves: the taps land 2 host pixels apart.
+Forced, the same run alternating frames: as the game 2.90 % of the pixels changed and 20 % of the Laplacian lost, in host
+pixels 1.44 % and 13 %. The fix: for `game::HostKernelPixelShader` (`123B15C5`) c0-c1 are divided by the scale and the
+draw has no scaled fetch (after it 1.38-1.42 %, 13 % on consecutive frames). Scale 1 is untouched. SSA and Giants have no such
+pass (a scan of their post constants): the constant is 0.
+
+**The leads that failed**, one line each:
+- Fetch offsets (`1644cee`): right for the kernels that must follow the frame. The depth of field removes as much at scale 1
+  and 2 (Laplacian x 0.49 and x 0.50). Only FXAA needed the exception above.
+- Motion blur at 60: constants equal at 30 and 60 (c0 = 1280, 720; c1 = 1/1280, 1/720), the walls' velocity sits at the
+  clamp in both (5 %-95 % of the velocity channel 13-234 and 12-232). So the blur at 60 is the blur at 30, not wrong: no
+  `motion_blur` setting.
+- LOD and mips: not the cause of the posterization (lava sheets removed: still x27). Whether a mip choice softens them is
+  not shown either way [?]; `SetTextureLod` was already measured and changed nothing.
+- Heat distortion: the scene's shift has a mean of about 0 (+0.3, +0.2 host pixels at scale 2; 0.0 at scale 1), so the DXN
+  decode has no sign or bias error.
+- Small render targets: the depth of field's chain keeps its ratio at both scales (above); the bloom chain was not measured
+  apart, it does not change the bisect's result.
+
+**What softness is left** is the game's: over the canyon the depth of field halves the Laplacian at either scale, then the
+motion blur and FXAA. Whether a console blurs that much is [?] (no console capture).
+
+**Check it**: `tools/test_all.sh` (Swap Force's tutorial, "the lava canyon's gradients are not posterized"; before the fix
+6 to 39 on final frames, after it 1.2 to 2.3). Pairs (untracked, `private/lava/shots/`):
+`pair_60fps_scale2_{before,after,crop}.png`, `pair_30fps_scale2_...`, the closest frames of two runs of the scripted scene:
+the swap count does not line up between runs here (the menus take a variable time), so these are the same moment, not one
+frame. `fx_game_vs_host.png`: FXAA on consecutive frames.
 
 ## Tests
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints
