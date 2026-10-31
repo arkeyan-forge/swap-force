@@ -4,11 +4,10 @@
 // threshold (the config's "stuck falling distance threshold", times a per-component scale at +104); moving less for long
 // enough puts the player back on a safe spot. The threshold is a distance per frame, tuned for the console's 30 fps: at 60
 // fps or more a normal fall moves less than it every frame and the player is put back. The threshold is scaled here by
-// 30 / fps_limit (at most 1), like a frame at 30 fps, for the call only (the scale is restored after it).
+// FrameScale() (30 / fps_limit, at most 1), like a frame at 30 fps, for the call only (the scale is restored after it).
 #include "game_hooks.h"
-#include "gpu/gpu.h"
+#include "kernel/video.h"
 #include "memory.h"
-#include <algorithm>
 #include <cstdio>
 #include <ppc_config.h>
 #include <ppc_context.h>
@@ -18,9 +17,9 @@ PPC_FUNC_IMPL(GAME_IMP(FallCheck));
 // (jump component) -> void.
 PPC_FUNC(GAME_HOOK(FallCheck))
 {
-    const uint32_t fps = std::max<uint32_t>(gpu::g_settings.fpsLimit, 1);
+    const float frameScale = FrameScale();
     const uint32_t component = ctx.r3.u32;
-    if (fps <= 30 || component == 0)
+    if (frameScale >= 1.0f || component == 0)
     {
         GAME_IMP(FallCheck)(ctx, base);
         return;
@@ -30,9 +29,9 @@ PPC_FUNC(GAME_HOOK(FallCheck))
     if (!logged)
     {
         logged = true;
-        fprintf(stderr, "[fall] the stuck-falling threshold is scaled by 30/%u (component scale %g)\n", fps, scale);
+        fprintf(stderr, "[fall] the stuck-falling threshold is scaled by %g (component scale %g)\n", frameScale, scale);
     }
-    g_memory.Write<float>(component + game::FallCheckScaleOffset, scale * (30.0f / float(fps)));
+    g_memory.Write<float>(component + game::FallCheckScaleOffset, scale * frameScale);
     GAME_IMP(FallCheck)(ctx, base);
     g_memory.Write<float>(component + game::FallCheckScaleOffset, scale);
 }

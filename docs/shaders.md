@@ -348,3 +348,7 @@ Giants IGA v8 / IGZ v6 (`global.bld`), Swap Force IGA v10 / IGZ v7 (`shaders_xen
 [Alchemy]: one archive of shader IGZ files, containers found by their D3D header, the physical part found through the
 memory-handle table. The "in order, same size" pairing is checked on Swap Force only; Trap Team and later (IGA v11,
 IGZ v8+) have to be checked again.
+
+## Edge smoothing (2026-10-31) [V]
+The setting `edge_smoothing` (game, light, off; [settings.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/settings.md)) changes this pass's contrast thresholds (pixel constants c3 and c4, floats 12 and 16: 0.125 and 0.05 in the game, 0.5 and 0.2 in Light, 1000 in Off, a plain copy).
+One static frame each at scale 2, `analyze.py sharpness` (the 3D area's detail against Game): **Light +23.9 %, Off +26.8 %**. Not chosen, the runtime uses Light from scale 2.
