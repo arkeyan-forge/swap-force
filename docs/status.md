@@ -39,7 +39,6 @@ Feature by feature against SSA: [parity.md](parity.md); what is left: [100.md](1
 ## Open problems
 - Not compared with a console yet: a `k_16_16_16_16_FLOAT` resolve nothing drew, a purple HUD panel in some frames,
   the portal's magic moment ([boot.md](boot.md), "Still open").
-- **The Toy Box cannot put a swapper**: each player has one seat, a swapper needs its two halves on the portal for the
-  same player ([history.md](history.md), "Figures and the portal"). `SKY_PORTAL_PLACE` and the F7 key can.
+- **Player 2 with a swapper remains untested**; a Player 1 swapper is placed through the Toy Box in the scripted test (`tools/regress/swapper_toybox.sh`).
 - **The 37 staging areas are black when started alone** [V]: they are pieces of their Swap Zone, not playable zones
   ([history.md](history.md), "Zone tour"). Nothing to fix.

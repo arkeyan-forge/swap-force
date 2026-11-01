@@ -1,8 +1,8 @@
 # games/swapforce/: Skylanders: Swap Force (Alchemy engine)
 
-> **Purpose:** what is in Swap Force's game folder, how to build it, and where its docs are · **Status:** current (2026-10-26) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
+> **Purpose:** what is in Swap Force's game folder, how to build it, and where its docs are · **Status:** current (2026-11-01) · **Tags:** [Xbox] [XDK] [Alchemy] [SwapForce]
 
-Status: day 1 done, scaffolding and XenonRecomp config in place, boot not started ([status](docs/status.md)).
+Status: ported and in the kit; 158 of 195 zones play in the tour ([status](docs/status.md)).
 
 | File | What |
 |---|---|
