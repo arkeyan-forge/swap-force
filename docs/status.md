@@ -27,8 +27,8 @@ Feature by feature against SSA: [parity.md](parity.md); what is left: [100.md](1
   [games/giants/docs/boot.md](https://github.com/arkeyan-forge/giants/blob/main/docs/boot.md).
 - Day 1 again: `tools/day1.sh swapforce <disc .iso>`, then Giants' inventory
   ([sigmatch.md](https://github.com/arkeyan-forge/forge/blob/main/docs/tools/toolchain/sigmatch.md), "Giants' inventory").
-- **Run it** [V]: `-DSSA_GAME=swapforce`, `nice ninja -C build-swapforce -j4 SSARecomp`, then the isolation block of
-  [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md) with `./build-swapforce/SSARecomp/SSFRecomp`,
+- **Run it** [V]: `-DSSA_GAME=swapforce`, `nice ninja -C build-swapforce -j4 ArkeyanRuntime`, then the isolation block of
+  [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md) with `"./build-swapforce/ArkeyanRuntime/Skylanders Swap Force"`,
   `SKY_SKIP_MOVIES=1 SKY_PORTAL=emulated SKY_PORTAL_PLACE=new:9` (Eruptor) and an A every 2 s from 14 to 50 s
   (`SKY_PRESS=a:14,a:16,...,a:50`): the tutorial plays at ~25 s on a quiet machine, ~45-60 s under a heavy load
   ([testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md#swap-force-to-the-tutorial-in-25-60-s-swapforce)). Another

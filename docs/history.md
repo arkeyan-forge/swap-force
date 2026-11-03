@@ -45,7 +45,7 @@
   LightCores, swappers (two tags, mixed halves too), magic items; the Toy Box opens at the game's "place your Skylander"
   prompt (the CMagicMoment reader). Below, "Figures and the portal".
 - **In the player kit** (2026-10-27, guide step 13, macOS) [V]: `KIT_GAMES="ssa giants swapforce" tools/make_kit.sh` packs Swap Force
-  (`games=ssa,giants,swapforce`; the default stays `ssa giants` until the user decides to ship it); SkyBuild installs `SSFRecomp` from the disc in ~5 min and the installed game plays
+  (`games=ssa,giants,swapforce`; the default stays `ssa giants` until the user decides to ship it); Arkeyan-Builder installs `SSFRecomp` from the disc in ~5 min and the installed game plays
   the tutorial. Below, "Installing Swap Force". One run-time shader of 7 is not caught yet ([shaders.md](shaders.md)).
 - **Parity with SSA and Giants** (2026-10-27) [V]: [parity.md](parity.md) has every row with its proof. Ultrawide works (the scene pass and the
   world camera, 2560x1080 and 3440x1440 in the tutorial); HD texture packs work (per-game folder); the game's own icon comes from the XDBF at
@@ -228,7 +228,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   `config/swapforce/` (`game.txt`, `SwapForce.toml`, the switch tables), `commands/swapforce/`,
   `lib/swapforce/runtime/` (and its own `libSSARecompGpu.a`, which differs from SSA's, as Giants' does:
   `kit_commands.py` keeps it per game), `res/swapforce/Info.plist` and
-  `ppc_config_sha256.swapforce` in `kit.txt`. Nothing else in SkyBuild needed a change: the disc is told by
+  `ppc_config_sha256.swapforce` in `kit.txt`. Nothing else in Arkeyan-Builder needed a change: the disc is told by
   `default.xex` (`5d9a3bc3...`), the shaders by `shaders=igz:/archives/shaders_xenon.pak`, the name by
   `runtime=SSFRecomp`. Building the kit needs `private/swapforce/ppc/ppc_config.h` and `ppc_context.h` (XenonRecomp on
   `games/swapforce/config/SwapForce.toml`; the context is SSA's, byte for byte).
@@ -237,7 +237,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   `KIT_GAMES="ssa giants"` kit of the same tree (`diff -rq`: only `kit.txt` and the `swapforce` folders differ).
   SSA and Giants install from the three-game kit as before [V]: SSA 223 s (3 run-time shaders), Giants 603 s (50 run-time
   shaders; shaders 453 s then 56 s), both `@done`.
-- **The install** [V] (the zip extracted, `SkyBuild --iso <disc> --out <game folder> --jobs 4`, M-series Mac, load
+- **The install** [V] (the zip extracted, `Arkeyan-Builder --iso <disc> --out <game folder> --jobs 4`, M-series Mac, load
   average 5-20, another kit build running for part of it; scratch `SKY_SETTINGS`, `SKY_LAUNCHER_INI`,
   `SKY_COLLECTION`, `SKY_SAVE_DIR`, `SKYLANDERS_DATA`, `SKY_LOG`): `game: Skylanders: Swap Force`; disc 0 s
   (`/archives/shaders_xenon.pak: 62 entries, 61 IGZ, 1074 shaders (580 vertex, 494 pixel)`), recompile 5 s (323
@@ -257,7 +257,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   stays `ssa giants`) [V]: Windows kit 867 files, 95 MB, zip 37 MB; Linux kit 863 files, 109 MB, zip 39 MB; `kit_scan` clean on both. Three
   small fixes were needed, all generic:
   1. **The Linux kit had no Swap Force**: the Docker run of `make_kit.sh` did not pass `KIT_GAMES` on, so the container built the
-     default two games (SkyBuild then said "this disc is not one of the games these tools build"). It passes it now.
+     default two games (Arkeyan-Builder then said "this disc is not one of the games these tools build"). It passes it now.
   2. **The Windows game faulted at start on `extrq`** (exception 0xC000001D, an illegal instruction): `-march=btver2` includes
      AMD's SSE4a, and the compiler used `extrq`/`insertq` for byte extracts in Swap Force's translated vector code (96 of them in
      `SSFRecomp.exe`; Wine on Rosetta rejects it, and so would any Intel PC). `cmake/toolchains/x86_64-w64-mingw32-clang.cmake` now adds
@@ -266,13 +266,13 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
   3. `tools/linux/kit_test.sh` and `tools/windows/wine_smoke_test.sh` take `SKY_PORTAL_PLACE` from the environment (`new:9`: Swap Force has
      no `new_14.sky` figure to place).
 - **Linux, Docker** [V] (`tools/linux/kit_test.sh ssa-player-ubuntu24`, amd64 under Rosetta on an M-series Mac, lavapipe, the kit mounted, the
-  disc read only, `SKY_PORTAL_PLACE=new:9`, A every 3 s from 14 s): SkyBuild from the disc to `@done /game/out/SSFRecomp` (852 MB game
+  disc read only, `SKY_PORTAL_PLACE=new:9`, A every 3 s from 14 s): Arkeyan-Builder from the disc to `@done /game/out/SSFRecomp` (852 MB game
   folder): `game: Skylanders: Swap Force`, 1074 of 1074 shaders (33 s), compile 566 s (Rosetta), link 41 s, movies 38 s (7 shaders built at
   run time), second pass 13 s: `1081 of 1081`; about 11 min in all. The game, offscreen, 600 s: `[gpu] Vulkan on llvmpipe`, `shader cache: 1081
   shaders`, `create save: "SWAPFORCE_OPTIONS"` then `"SWAPFORCE_0"`, `open \archives\tutorial_a.pak`, `eruptor.pak`, 535 draws a
   frame at 1.5-2.3 fps (software GPU under emulation), no fault, no `no translated` line (killed by the 600 s timeout). A 150 s run only
   reached the loading screen: at 2 fps give it 300 s or more.
-- **Windows, cross build and Wine** [V] (the macOS kit's `SkyBuild --kit <Windows kit> --toolchain <llvm-mingw 20260922>` over the `ssabuild-work`
+- **Windows, cross build and Wine** [V] (the macOS kit's `Arkeyan-Builder --kit <Windows kit> --toolchain <llvm-mingw 20260922>` over the `ssabuild-work`
   of a native macOS install of the same disc, 8 min under load: shaders 156 s, compile 166 s, movies 120 s): compile 642 s (a clean cross build, load ~5), link 1 s, `SSFRecomp.exe`. Wine 10, headless
   (`tools/windows/wine_smoke_test.sh`, `EXE=`, A every 2 s from 14 to 110 s, 150 s): `create save: "SWAPFORCE_OPTIONS"` and
   `"SWAPFORCE_0"`, `open \archives\tutorial_a.pak`, `eruptor.pak`, no `Fault`, no `[guard]` line, alive until the timeout. The cross
@@ -294,7 +294,7 @@ As for SSA and Giants, a player drops the disc, presses INSTALL, then PLAY. Desi
 - The disc: `/archives/` only: 2231 `.pak`, 92 `.bk2` (Bink 2), 2 `.bik` (Bink 1: the Activision and Alchemy logos),
   plus `default.xex`, `cachenonce.txt`, `nxeart`. A `.pak` is an **IGA v10, big-endian** archive (Giants: IGA v8,
   little-endian, in `.arc`/`.bld`): every Alchemy reader (`runtime/host/art/alchemy_archive.cpp`, `tools/toy_tables.py`,
-  SkyBuild's shader extractor) needs the new version. Strings in the XEX name `.igz` files inside the paks
+  Arkeyan-Builder's shader extractor) needs the new version. Strings in the XEX name `.igz` files inside the paks
   (`fonts/ProximaNova-*.igz`, `UI/*.igz`), `igImage2`, `igObject`: Alchemy.
 
 ### sigmatch

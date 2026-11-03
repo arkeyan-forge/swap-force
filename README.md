@@ -10,7 +10,7 @@ Status: ported and in the kit; 158 of 195 zones play in the tour ([status](docs/
 | `adapter.cpp` | the `game::Adapter` (`runtime/game.h`) |
 | `info.cpp` | id, name and the supported disc release (title ID, media ID, SHA-256 of `default.xex`) |
 | `swap_wait.cpp` | the render thread's spin on its last swap made a wait for the next graphics interrupt (2026-10-28, [renderer_threads.md](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/renderer_threads.md), "Swap Force's swap wait") |
-| `game.txt` | what the player kit's SkyBuild knows about the game |
+| `game.txt` | what the player kit's Arkeyan-Builder knows about the game |
 | `config/` | XenonRecomp input: `SwapForce.toml`, `SwapForce_switch_tables.toml` |
 
 Build: `cmake -S . -B build-swapforce -G Ninja -DSSA_GAME=swapforce`. The generated code is `private/swapforce/ppc/` and the game's

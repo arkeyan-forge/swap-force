@@ -66,7 +66,7 @@ libraries of XDK 21250; **[Xbox]** every game. Addresses are Swap Force's. Day 1
 - Files: `kernel/net.cpp`, `kernel/xam_content.cpp`, `kernel/xam_achievements.cpp`, `kernel/xam_user.cpp`,
   `kernel/xam.cpp`, `kernel/memory.cpp`, `kernel/files.cpp`, `kernel/imports_giants.cpp` (launch data), and the new
   `kernel/imports_swapforce.cpp` (Live UI, tasks, XAuth and tokens, gamer pictures, console key). After this, `ninja
-  -C build-swapforce SSARecomp` links.
+  -C build-swapforce ArkeyanRuntime` links.
 
 ### First boot runs (2026-10-26) [Xbox] [SwapForce] [V]
 Run: an isolated, bounded run (`SKY_SKIP_MOVIES=1`, every test isolation variable, killed by PID after 60 s).
@@ -371,7 +371,7 @@ the pacing is gone, not the ceiling.
 solid-colour 872x400 DDS named as the dump file of the title logo, in `<data>/Swapforce/textures/`, was found (`[texpack] 1
 replacement textures in .../Swapforce/textures (0 invalid, 0 ignored)`) and the legal screen showed it.
 
-**The icon** [V]: SkyBuild's `BundleIcon` takes `default.xex`'s XDBF title icon, whatever the game: Swap
+**The icon** [V]: Arkeyan-Builder's `BundleIcon` takes `default.xex`'s XDBF title icon, whatever the game: Swap
 Force's is a 64x64 PNG ("Skylanders SWAP Force", read with `ReadTitleMetadata`), and sips and iconutil turn it into a
 `.icns`. Nothing game-specific is missing (`game.txt`, `art.json` and the kit's per-game `Info.plist` are there). A whole
 kit install with the icon in the Dock was not run [?].

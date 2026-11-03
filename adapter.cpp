@@ -82,9 +82,33 @@ namespace
     // the archive's bytes (the hash method of the other textures), not seen in game yet.
     constexpr glyphs::Texture GlyphTextures[] = { { 0x0758AAD79A30A2C8ull, "turbo_a 128", Glyph::A, {}, true } };
 
+    // The F3 menu's Commands page (host/commands.h): Skylauncher's rows for this game, in its order and words.
+    constexpr commands::Row InputRows[] = {
+        { "left_up", "Move up", "Haut", nullptr },
+        { "left_down", "Move down", "Bas", nullptr },
+        { "left_left", "Move left", "Gauche", nullptr },
+        { "left_right", "Move right", "Droite", nullptr },
+        { "a", "Jump", "Sauter", "a" },
+        { "x", "Attack 1", "Attaque 1", "x" },
+        { "b", "Attack 2", "Attaque 2", "b" },
+        { "y", "Attack 3", "Attaque 3", "y" },
+        { "rb", "Attack 2", "Attaque 2", "rb" },
+        { "lb", "Attack 3", "Attaque 3", "lb" },
+        { "lt", "Interact", "Interagir", "lt" },
+        { "rt", "Interact", "Interagir", "rt" },
+        { "back", "Skylanders Stats", "Stats Skylanders", "back" },
+        { "start", "Pause", "Pause", "start" },
+    };
+
+    // The mouse once on: attack 1 on the left button, attack 2 on the right (Skylauncher's rows name them so).
+    constexpr mouse::Default MouseDefaults[] = { { "x", mouse::Left }, { "b", mouse::Right } };
+    // The front end: the game's own menus, where the mouse does nothing.
+    constexpr std::string_view MenuLevels[] = { "ui\\mainmenubackground\\mainmenubackground" };
+
     // fullScene: the scene at the frame's size (games/swapforce/ultrawide.cpp: the scene chain's size, its tiling and EDRAM plan).
     const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures,
-        IntroMovies, false, nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr };
+        IntroMovies, false, nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr, 0,
+        {}, InputRows, MouseDefaults, MenuLevels };
 }
 
 const game::Adapter& game::Current() { return g_adapter; }

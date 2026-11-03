@@ -16,4 +16,4 @@ namespace
     };
 }
 
-extern const GameInfo g_gameInfo = { "swapforce", "Skylanders: Swap Force", SwapForceReleases, "SSFRecomp" };
+extern const GameInfo g_gameInfo = { "swapforce", "Skylanders Swap Force", SwapForceReleases, "Skylanders Swap Force" };

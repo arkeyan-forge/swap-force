@@ -42,8 +42,8 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
 - **Python** (developers): `python3 -I tools/shaders/swapforce_extract.py <iso> private/swapforce/shaders/disc
   [<dump dir>]`: reads `shaders_xenon.pak` (1 s; `ARCHIVES=all` scans all 2231 `.pak` files, 70 s with 4 processes),
   writes `<sha1 prefix>.vs|.ps`, `manifest.txt` and, with a dump dir, `missing.txt`.
-- **SkyBuild** (C++, the player kit): `shaders=igz:/archives/shaders_xenon.pak` in `games/swapforce/game.txt`.
-  `tools/skybuild/igz_shaders.cpp` reads IGZ v7 too (`ForEachContainerV7`), through the runtime's IGA reader, which
+- **Arkeyan-Builder** (C++, the player kit): `shaders=igz:/archives/shaders_xenon.pak` in `games/swapforce/game.txt`.
+  `tools/arkeyan-builder/igz_shaders.cpp` reads IGZ v7 too (`ForEachContainerV7`), through the runtime's IGA reader, which
   reads v10 since 2026-10-27 (`runtime/host/art/alchemy_archive.cpp`). It writes the same 1074 containers as the Python
   tool (compared by content). Then, as for Giants, the short headless run dumps what the game builds at run time and
   the cache is rebuilt ([kit_contract.md](https://github.com/arkeyan-forge/forge/blob/main/docs/release/launcher/kit_contract.md)). The two `gfx` defaults come
@@ -51,7 +51,7 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
   `2BE3ED3FB609BD71.ps`, `515F525572999F76.ps`), and **`811CCF44C1A9FC42.ps`** only on the tutorial's loading screen
   (`[render] no translated pixel shader 811CCF44C1A9FC42 (primitive 6)` right after `open \archives\tutorial_a.pak`
   and `fmv01`), after the menus.
-- **The movie pass reaches it** [V] (2026-10-27): `games/swapforce/game.txt` gives SkyBuild `movie_portal=emulated`
+- **The movie pass reaches it** [V] (2026-10-27): `games/swapforce/game.txt` gives Arkeyan-Builder `movie_portal=emulated`
   (an empty emulated portal), `movie_press=` (A every 2 s from 10 to 110 s: the title, Story Mode, the first NEW slot,
   the difficulty) and `movie_shaders=7` (the run ends once 7 new shaders are dumped, at the latest after 120 s), so
   the installed game has **1081** shaders. Until then the pass ran with `SKY_PORTAL=none` and stopped 8 s after the
@@ -334,8 +334,17 @@ the swap count does not line up between runs here (the menus take a variable tim
 frame. `fx_game_vs_host.png`: FXAA on consecutive frames.
 
 ## Tests
+The explicit-LOD/cube translator update (2026-11-01) affects 55 of 1081 local distinct containers (28 also use
+noncanonical cube operands); their DXIL/SPIR-V compile, while a visual reflection check remains due. Players must
+update/rebuild the game with the new kit; developers rerun the disc plus runtime/movie cache recipe, configure and
+relink. Arkeyan-Builder's stamp hashes the new translator binary, forcing retranslation; compiled cache entries hash the full
+translated text, so old affected entries cannot be reused. Before release, advance `games/swapforce/game.txt` from
+0.5.4 and the kit from 0.8.0; this lane changes neither version. Keep the cache player-local. Check reflections while
+turning the camera (roughness, face direction, sparkle), plus deferred lighting, FXAA, shadows and movies at scales 1
+and 2 on Metal, D3D12 and Vulkan. [Full audit and proof](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/shaders.md).
+
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints
-  `1074 distinct (580 vertex)` and `found by the extractor: 549; missing: 7`. SkyBuild's C++ extractor on the same
+  `1074 distinct (580 vertex)` and `found by the extractor: 549; missing: 7`. Arkeyan-Builder's C++ extractor on the same
   archive writes the same 1074 files (by content), and on Giants' `global.bld` the same 4394 files as before the v10/v7
   change (byte-identical set, 2026-10-27). `SSAArtTest` reads a synthetic IGA v10 fixture (big-endian, 16-byte entries,
   0x800-aligned chunks).

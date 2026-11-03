@@ -1,14 +1,14 @@
-# What the player kit's SkyBuild knows about this game (tools/make_kit.sh copies it to config/swapforce/game.txt). No game
+# What the player kit's Arkeyan-Builder knows about this game (tools/make_kit.sh copies it to config/swapforce/game.txt). No game
 # data: the hashes identify the player's own default.xex and must be the ones games/swapforce/info.cpp accepts.
 id=swapforce
-name=Skylanders: Swap Force
-runtime=SSFRecomp
+name=Skylanders Swap Force
+runtime=Skylanders Swap Force
 # The game's own version (1.0 = the game at 100 %): each fix bumps the last number. The kit carries it (kit.txt game_version.<id>),
 # the release says it (games.json), Skylauncher offers UPDATE when its release has a higher one.
 version=0.5.4
 toml=SwapForce.toml
 xex_sha256=5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3,3db455f6ee17e8cb3a4d58873d96583d9160396d360a0130e5eb88adad8a5518
-# Shaders: all in one IGA v10 archive of the disc (SkyBuild extracts them itself: tools/skybuild/igz_shaders.cpp).
+# Shaders: all in one IGA v10 archive of the disc (Arkeyan-Builder extracts them itself: tools/arkeyan-builder/igz_shaders.cpp).
 shaders=igz:/archives/shaders_xenon.pak
 # The movie pass (the install's headless run that dumps the shaders the game builds at run time): 6 come with the
 # start-up logos, the 7th (811CCF44C1A9FC42.ps) only with the tutorial's loading screen. An empty emulated portal (with no
