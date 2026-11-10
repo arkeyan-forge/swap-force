@@ -60,7 +60,7 @@ IGA v10 and the IGZ v7 header: [art.md](art.md#formats-alchemy-swapforce-v). Wha
   so presses alone could not reach the loading screen. Headless with the empty emulated portal, the installed game
   dumps `811CCF44C1A9FC42.ps` ~34 s in at a load of 4. If a slow machine does not get there in 120 s, the install
   still ends with the shaders found (a `warning: 7 expected` line) and only that screen's draws are skipped.
-- The cache: `SSA_GAME=swapforce SKY_SHADER_OUT=<dir> tools/shaders/build_cache.sh <iso> <containers dir>` writes
+- The cache: `SKY_GAME=swapforce SKY_SHADER_OUT=<dir> tools/shaders/build_cache.sh <iso> <containers dir>` writes
   `<dir>/shader_cache.cpp` (input in `<dir>/input`) without touching `private/swapforce/ppc/`. From the 1074 disc
   containers and the 7 dump-only ones: **1081 of 1081 translated, 0 without DXIL** (5 min on an M1 Pro), and the 556
   hashes of the dump cache are all in it.
@@ -77,7 +77,7 @@ Against the 556 containers of the run-time dumps (title, menus, tutorial level):
 
 ### From a run-time dump (the first cache, still useful to find run-time shaders)
 As Giants' first cache [V]: `SKY_DUMP_SHADERS=<dir>` on a run through the title and the tutorial level
-(`private/swapforce/run.sh`, A presses, `SKY_PORTAL_PLACE=new:9`), then `SSA_GAME=swapforce tools/shaders/build_cache.sh
+(`private/swapforce/run.sh`, A presses, `SKY_PORTAL_PLACE=new:9`), then `SKY_GAME=swapforce tools/shaders/build_cache.sh
 <disc .iso> <dump dir>` writes `private/swapforce/ppc/shader_cache.cpp`: two runs gave **556 containers, 556 of 556
 translated** (~1 min on an M1 Pro); a third run with that cache dumped no new one, and every draw of the title, menus
 and tutorial has its shader (`skipped 0 (shader)`).
@@ -346,7 +346,7 @@ and 2 on Metal, D3D12 and Vulkan. [Full audit and proof](https://github.com/arke
 - The extraction: `python3 -I tools/shaders/swapforce_extract.py <iso> <out> private/swapforce/shaders/all` prints
   `1074 distinct (580 vertex)` and `found by the extractor: 549; missing: 7`. Arkeyan-Builder's C++ extractor on the same
   archive writes the same 1074 files (by content), and on Giants' `global.bld` the same 4394 files as before the v10/v7
-  change (byte-identical set, 2026-10-27). `SSAArtTest` reads a synthetic IGA v10 fixture (big-endian, 16-byte entries,
+  change (byte-identical set, 2026-10-27). `ArkeyanArtTest` reads a synthetic IGA v10 fixture (big-endian, 16-byte entries,
   0x800-aligned chunks).
 - Not yet: a game run on the disc-made cache (`private/swapforce/shaders/cache_disc/`, 1081 shaders).
 - The frame snapshots of the runs (`SKY_GPU_SNAPSHOT`): the title screen, menus, loading screen, the HUD and, since 2026-10-27, the tutorial's 3D scene draw like the game ([boot.md](boot.md), "What broke on the way to a level").

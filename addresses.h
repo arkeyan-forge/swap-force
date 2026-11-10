@@ -61,7 +61,7 @@
 // yet; its only caller, the scene's end sub_82515D68, spins on it before D3DDevice_Swap.
 #define GAME_HOOK_SwapWait_Status sub_82F5CB30
 
-// Nightmare difficulty (games/swapforce/nightmare.cpp): (storage) -> whether the save's "nightmare_difficulty_unlocked"
+// Nightmare difficulty (engines/alchemy/nightmare.cpp): (storage) -> whether the save's "nightmare_difficulty_unlocked"
 // property is 1 (a script variable of the slot that the story's end sets through tryUnlockNightmareDifficultyLevel). Its one
 // caller, the difficulty menu's availability check sub_82C12BC0 (difficulty index >= 3 asks it), shows the padlock and "Beat
 // the game to unlock Nightmare difficulty." while it answers 0.
@@ -83,15 +83,15 @@
 #define GAME_HOOK_Language_SoundPak sub_825F5B48
 #define GAME_HOOK_Movie_Open sub_825A71D0
 
-// The string table's intern (games/swapforce/prompt_text.cpp, art.md "Button pictures"): r3 the table (*0x83403DB0), r4 a
-// C string; returns the shared copy, looked up by content (sub_823EBFF0) or allocated and copied (sub_823EC3B8,
-// memcpy). Every string of the IGZ files (the TSTR records, sub_82433D90) and of the igx text goes through it. Found from
-// the IGZ loader's TSTR case (sub_82459898) by hand.
+// The string table's intern (engines/alchemy/prompt_text.cpp, art.md "Button pictures"): r3 the table (*0x83403DB0), r4
+// a C string; returns the shared copy, looked up by content (sub_823EBFF0) or allocated and copied (sub_823EC3B8,
+// memcpy). Every string of the IGZ files (the TSTR records, sub_82433D90) and of the igx text goes through it. Found
+// from the IGZ loader's TSTR case (sub_82459898) by hand.
 #define GAME_HOOK_String_Intern sub_823EC0D8
-// A font's character lookup (prompt_text.cpp): r3 the igBitmapFont, r4 a u16* character code, r5 a u8* set to 1 when the
-// character is in the alternate list (drawn from the font's "button" image); returns the igCharMetrics or 0. A binary
-// search of the main list (+0x40), then the alternate one (+0x44); nothing cached. Found from the CPU text renderer
-// (sub_82557560, sub_82557A48) by hand.
+// A font's character lookup (engines/alchemy/prompt_text.cpp): r3 the igBitmapFont, r4 a u16* character code, r5 a u8*
+// set to 1 when the character is in the alternate list (drawn from the font's "button" image); returns the
+// igCharMetrics or 0. A binary search of the main list (+0x40), then the alternate one (+0x44); nothing cached. Found
+// from the CPU text renderer (sub_82557560, sub_82557A48) by hand.
 #define GAME_HOOK_Font_CharMetrics sub_82553E48
 
 // Ultrawide and the full-resolution scene (games/swapforce/ultrawide.cpp, docs/runtime/gpu/ultrawide.md "Swap Force"): a
@@ -135,6 +135,9 @@ namespace game
     constexpr uint32_t UltrawideCompositeVertices = 6;
     constexpr int UltrawideCompositeSlot = 0;
     constexpr bool UltrawideCompositeVpos = false;
+    // Upscaling (d3d/upscale.h): the vertex constant where the position matrix starts: c0-c3, row vectors (Alchemy, as
+    // Giants'; the camera vote's "[upscale] last 900 frames" line checks it).
+    constexpr int32_t UpscalePositionMatrix = 0;
     // The post pass whose constants and fetch offsets give its kernel in guest pixels: at scale N, in host pixels.
     constexpr uint64_t HostKernelPixelShader = 0x123B15C5DE8896D4ull; // FXAA 3.11 (games/swapforce/docs/shaders.md)
     // Where the pass keeps its contrast threshold in the pixel constants (a float index; the minimum follows): the edge smoothing setting.

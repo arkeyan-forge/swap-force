@@ -13,7 +13,7 @@ Status: ported and in the kit; 158 of 195 zones play in the tour ([status](docs/
 | `game.txt` | what the player kit's Arkeyan-Builder knows about the game |
 | `config/` | XenonRecomp input: `SwapForce.toml`, `SwapForce_switch_tables.toml` |
 
-Build: `cmake -S . -B build-swapforce -G Ninja -DSSA_GAME=swapforce`. The generated code is `private/swapforce/ppc/` and the game's
+Build: `cmake -S . -B build-swapforce -G Ninja -DARKEYAN_GAME=swapforce`. The generated code is `private/swapforce/ppc/` and the game's
 derived data `private/swapforce/`. The engine's hooks are in `engines/alchemy/`.
 
 ## Docs

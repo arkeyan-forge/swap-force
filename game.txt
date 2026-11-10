@@ -5,9 +5,14 @@ name=Skylanders Swap Force
 runtime=Skylanders Swap Force
 # The game's own version (1.0 = the game at 100 %): each fix bumps the last number. The kit carries it (kit.txt game_version.<id>),
 # the release says it (games.json), Skylauncher offers UPDATE when its release has a higher one.
-version=0.5.6
+version=0.5.10
 toml=SwapForce.toml
 xex_sha256=5d9a3bc3c2d85ed59684a9c5f94daf6bffcfdfedcef7650a866737edbf3f4ac3,3db455f6ee17e8cb3a4d58873d96583d9160396d360a0130e5eb88adad8a5518
+# The releases' loaded images (decrypted, decompressed; same order as xex_sha256), labels and title ID: a disc of
+# another edition with one of these images runs the same code (docs/tools/edition_finder.md).
+image_sha256=f6648b7ea47b43136e82e2b7dab5935018e86983179c4db6ecef177c5a1edf26,f6648b7ea47b43136e82e2b7dab5935018e86983179c4db6ecef177c5a1edf26
+releases=USA, Australia;Europe
+title_id=415608E9
 # Shaders: all in one IGA v10 archive of the disc (Arkeyan-Builder extracts them itself: tools/arkeyan-builder/igz_shaders.cpp).
 shaders=igz:/archives/shaders_xenon.pak
 # The movie pass (the install's headless run that dumps the shaders the game builds at run time): 6 come with the

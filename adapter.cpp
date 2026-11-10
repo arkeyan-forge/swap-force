@@ -71,7 +71,7 @@ namespace
         { Glyph::RightBumper, 182, 71, 250, 101 },
         { Glyph::LeftStickIcon, 144, 117, 188, 160 },
         { Glyph::RightStickIcon, 201, 117, 245, 160 },
-        { Glyph::Start, 202, 7, 244, 49 }, // ours: an empty part of the image, the title's Start (prompt_text.cpp)
+        { Glyph::Start, 202, 7, 244, 49 }, // ours, "PRESS START" (engines/alchemy/prompt_text.cpp)
     };
     constexpr glyphs::MemoryImage GlyphImages[] = {
         { 0xC72144049EB62788ull, "body font buttons 256x83", 256, 83, 98304, BodyButtons },
@@ -106,9 +106,23 @@ namespace
     constexpr std::string_view MenuLevels[] = { "ui\\mainmenubackground\\mainmenubackground" };
 
     // fullScene: the scene at the frame's size (games/swapforce/ultrawide.cpp: the scene chain's size, its tiling and EDRAM plan).
+    // Frame generation (gpu/fsr/framegen.h) on, with the scene's motion layers below: with the camera's motion alone the
+    // tutorial's ship, Outlands' and the Swap Zones' vehicles smeared in the generated frames (docs/runtime/gpu/upscaling.md).
+    constexpr bool FrameGeneration = true;
+
+    // The ship of the tutorial and of Outlands, the Swap Zones' vehicles: parts of the scene move with the camera while
+    // the world passes by: FSR's motion is chosen per pixel among the draws' motions (gpu::UpscaleDesc::motionLayers).
+    constexpr bool SceneMotionLayers = true;
+    // Its in-game cutscenes orbit the camera at 0.3-0.5 of the picture a frame: no frame made between such frames.
+    constexpr float FrameGenerationCutShift = 0.25f;
+
     const game::Adapter g_adapter = { g_gameInfo, ReadPortalPrompt, true, swapforce::SetVoiceLanguage, GlyphTextures,
-        IntroMovies, false, nullptr, {}, GlyphImages, true, { 1280, 720 }, swapforce::SetNightmareFromStart, nullptr, 0,
-        {}, InputRows, MouseDefaults, MenuLevels };
+        IntroMovies, false, nullptr, {}, GlyphImages, true, { 1280, 720 }, AlchemySetNightmareFromStart, nullptr, 0, {},
+        InputRows, MouseDefaults, MenuLevels, 0, {}, 0, {}, FrameGeneration, SceneMotionLayers,
+        FrameGenerationCutShift };
 }
 
 const game::Adapter& game::Current() { return g_adapter; }
+
+// Skylauncher's glow for this game (its StyleOf).
+uint32_t game::Accent() { return 0xBFE04A; }

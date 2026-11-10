@@ -27,7 +27,7 @@ Feature by feature against SSA: [parity.md](parity.md); what is left: [100.md](1
   [games/giants/docs/boot.md](https://github.com/arkeyan-forge/giants/blob/main/docs/boot.md).
 - Day 1 again: `tools/day1.sh swapforce <disc .iso>`, then Giants' inventory
   ([sigmatch.md](https://github.com/arkeyan-forge/forge/blob/main/docs/tools/toolchain/sigmatch.md), "Giants' inventory").
-- **Run it** [V]: `-DSSA_GAME=swapforce`, `nice ninja -C build-swapforce -j4 ArkeyanRuntime`, then the isolation block of
+- **Run it** [V]: `-DARKEYAN_GAME=swapforce`, `nice ninja -C build-swapforce -j4 ArkeyanRuntime`, then the isolation block of
   [testing.md](https://github.com/arkeyan-forge/forge/blob/main/docs/getting-started/testing.md) with `"./build-swapforce/ArkeyanRuntime/Skylanders Swap Force"`,
   `SKY_SKIP_MOVIES=1 SKY_PORTAL=emulated SKY_PORTAL_PLACE=new:9` (Eruptor) and an A every 2 s from 14 to 50 s
   (`SKY_PRESS=a:14,a:16,...,a:50`): the tutorial plays at ~25 s on a quiet machine, ~45-60 s under a heavy load
@@ -42,3 +42,11 @@ Feature by feature against SSA: [parity.md](parity.md); what is left: [100.md](1
 - **Player 2 with a swapper remains untested**; a Player 1 swapper is placed through the Toy Box in the scripted test (`tools/regress/swapper_toybox.sh`).
 - **The 37 staging areas are black when started alone** [V]: they are pieces of their Swap Zone, not playable zones
   ([history.md](history.md), "Zone tour"). Nothing to fix.
+
+## The light buffer read before it is written (2026-11-10) [V]
+The tutorial's frame at 80 s (`SKY_DUMP_FRAME=80 SKY_DUMP_FLOATS=1`): the RGBA16F 2560x1440 target that the deferred
+lighting `F0A0A5A4AB9A1935` reads is resolved without a draw or a clear in the frame, and on the Mac it holds NaN in red,
+blue and alpha (every texel) and 0 in green. Trap Team's same pass clears it first (`[dump] clear target 0 fmt 10`). The
+Mac's picture is right, so the lighting does not keep those values there, but what such a target holds is undefined
+in D3D12 and Vulkan: another GPU may read other bits [?]. If a PC shows Swap Force's lighting wrong, clearing new render
+targets at creation (a defined zero on every backend) is the first thing to try.

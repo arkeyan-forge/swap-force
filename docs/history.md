@@ -395,7 +395,7 @@ A new save shows Nightmare with a padlock and "Beat the game to unlock Nightmare
   from the profile (`sub_829D48F0`, `sub_823E96C0`) and answers whether it is 1. It has no other caller. The property is
   written by the story's end only; nothing in the menu writes it.
 - **`[swapforce] nightmare_from_start=1`** (`--nightmare-from-start 1`, `SKY_NIGHTMARE_FROM_START=1`; the launcher's Game tab,
-  Difficulty): `games/swapforce/nightmare.cpp` hooks `sub_829CC788` (`GAME_HOOK_NightmareUnlocked`), calls the original and
+  Difficulty): `engines/alchemy/nightmare.cpp` (Swap Force's own file until 2026-11-05, now shared with Imaginators) hooks `sub_829CC788` (`GAME_HOOK_NightmareUnlocked`), calls the original and
   answers 1 when the option is on. The save is not touched: the property stays what it was, so with the option off the
   padlock is back at once (the next time the menu asks), and a slot that chose Nightmare keeps playing it (the choice is the
   slot's own). The log says `[nightmare] offered from the start`, then once per case `[nightmare] the menu asked: the save says
@@ -410,7 +410,8 @@ A new save shows Nightmare with a padlock and "Beat the game to unlock Nightmare
   new game with no difficulty choice, its Options (General, Audio, Controls) hold no difficulty either (General has only "Visiting
   Nicknames"), and the only "Nightmare" strings of its disc are upgrade names ("Nightmare Huggers", "Nightmare Touch"). So the
   option exists for Swap Force only; the other runtimes log `<game> has no locked difficulty, ignoring nightmare_from_start`, and the
-  launcher shows the option on Swap Force's page only.
+  launcher shows the option on Swap Force's page only. (2026-11-05: Imaginators has it too, SuperChargers offers Nightmare from the
+  start, Trap Team hides it until the story is beaten: each game's status page, "Nightmare".)
 
 ## Moved from the status page: the other disc and two solved problems
 
