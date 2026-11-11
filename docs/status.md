@@ -47,6 +47,8 @@ Feature by feature against SSA: [parity.md](parity.md); what is left: [100.md](1
 The tutorial's frame at 80 s (`SKY_DUMP_FRAME=80 SKY_DUMP_FLOATS=1`): the RGBA16F 2560x1440 target that the deferred
 lighting `F0A0A5A4AB9A1935` reads is resolved without a draw or a clear in the frame, and on the Mac it holds NaN in red,
 blue and alpha (every texel) and 0 in green. Trap Team's same pass clears it first (`[dump] clear target 0 fmt 10`). The
-Mac's picture is right, so the lighting does not keep those values there, but what such a target holds is undefined
-in D3D12 and Vulkan: another GPU may read other bits [?]. If a PC shows Swap Force's lighting wrong, clearing new render
-targets at creation (a defined zero on every backend) is the first thing to try.
+Mac's picture is right, so the lighting does not keep those values there, but what such a target held was undefined
+in D3D12 and Vulkan: another GPU could read other bits [?]. `TargetFor` now clears newly created colour targets to
+zero before their first use ([EDRAM model](https://github.com/arkeyan-forge/forge/blob/main/docs/runtime/gpu/edram_resolve_tiling.md)); reused targets retain
+their contents. This removes the undefined initial read. It has not been compared in a game run and is not proof of
+the reported green-screen cause ([issue #26](https://github.com/mflr0/Arkeyan-Launcher/issues/26)).
